@@ -1,0 +1,77 @@
+/* Card Transparente / Glassmorphism */
+.card-custom-form {
+  background-color: rgba(30, 30, 30, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  max-width: 480px;
+  color: #FFFFFF;
+}
+
+/* Inputs e Selects */
+.custom-input {
+  background-color: #121212;
+  border: 1px solid #333333;
+  color: #FFFFFF;
+  border-radius: 8px;
+}
+
+.custom-input:focus {
+  background-color: #1A1A1A;
+  color: #FFFFFF;
+  border-color: #8A2BE2;
+  box-shadow: 0 0 0 0.25rem rgba(138, 43, 226, 0.25);
+}
+
+.custom-input::placeholder {
+  color: #777777;
+}
+
+/* Botão de Mostrar/Ocultar Senha */
+.custom-input-btn {
+  background-color: #121212;
+  border: 1px solid #333333;
+  color: #AAAAAA;
+}
+
+.custom-input-btn:hover {
+  background-color: #222222;
+  color: #FFFFFF;
+  border-color: #333333;
+}
+
+/* Progresso e Botões Principais */
+.bg-custom-purple {
+  background-color: #8A2BE2 !important;
+}
+
+.progress {
+  background-color: #2A2A2A;
+  border-radius: 10px;
+}
+
+.btn-purple {
+  background-color: #8A2BE2;
+  color: #FFFFFF;
+  border: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-purple:hover {
+  background-color: #7A1FA2;
+  color: #FFFFFF;
+  transform: translateY(-1px);
+}
+
+.text-purple {
+  color: #A855F7;
+}
+
+.form-check-input:checked {
+  background-color: #8A2BE2;
+  border-color: #8A2BE2;
+}
+
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.25rem rgba(138, 43, 226, 0.25);
+}

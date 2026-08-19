@@ -1,0 +1,54 @@
+/* Limpíssimo: apenas o que pertence à Home */
+.search-container {
+  max-width: 500px;
+}
+
+.bg-custom-filter {
+  background-color: rgba(253, 245, 230, 0.9);
+  backdrop-filter: blur(5px);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.card-max-width {
+  max-width: 320px;
+}
+
+.card-person-placeholder {
+  height: 220px;
+  width: 100%;
+}
+
+.custom-card {
+  border-radius: 16px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.custom-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12) !important;
+}
+
+.text-custom-price {
+  color: #8A2BE2;
+  font-weight: bold;
+}
+
+.btn-arrow {
+  background-color: #8A2BE2;
+  color: #FFFFFF;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  box-shadow: 0 4px 10px rgba(138, 43, 226, 0.3);
+  transition: background-color 0.2s ease;
+}
+
+.btn-arrow:hover {
+  background-color: #6A00F4;
+  color: #FFFFFF;
+}
