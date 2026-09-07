@@ -1,19 +1,14 @@
-document.addEventListener('DOMContentLoaded', () => {
-  function bindToggleSenha(btnId, inputId, iconId) {
-    const btn = document.getElementById(btnId);
-    const input = document.getElementById(inputId);
-    const icon = document.getElementById(iconId);
-
-    if (btn && input && icon) {
-      btn.addEventListener('click', () => {
-        const isPassword = input.type === 'password';
-        input.type = isPassword ? 'text' : 'password';
-        icon.classList.toggle('bi-eye-slash', !isPassword);
-        icon.classList.toggle('bi-eye', isPassword);
-      });
-    }
-  }
-
-  bindToggleSenha('toggleSenha', 'senha', 'iconSenha');
-  bindToggleSenha('toggleConfirmar', 'confirmar_senha', 'iconConfirmar');
+const account = JSON.parse(sessionStorage.getItem('babysite_pais') || '{}');
+document.getElementById('parentPasswordForm').addEventListener('submit', (event) => {
+  event.preventDefault();
+  const password = document.getElementById('senha').value;
+  const confirmation = document.getElementById('confirmar_senha').value;
+  const error = document.getElementById('passwordError');
+  error.textContent = '';
+  if (password.length < 8) { error.textContent = 'A senha deve ter pelo menos 8 caracteres.'; return; }
+  if (password !== confirmation) { error.textContent = 'As senhas não conferem.'; return; }
+  account.senha = password;
+  localStorage.setItem('babysite_pais', JSON.stringify(account));
+  sessionStorage.removeItem('babysite_pais');
+  window.location.href = '../../../../pais/home-pais.html';
 });

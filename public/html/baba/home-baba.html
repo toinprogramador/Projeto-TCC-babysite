@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Babysite | Área da babá</title>
+  <link rel="icon" href="../../imagens/logo_do_babysite.png" type="image/png">
+  <link rel="stylesheet" href="../../css/baba/baba.css">
+</head>
+<body>
+  <div class="portal-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="../home/home.html">
+        <span class="brand-mark"><img src="../../imagens/logo_do_babysite.png" alt=""></span>
+        <span><strong>baby</strong>site<small>área profissional</small></span>
+      </a>
+
+      <div class="sidebar-label">NAVEGAÇÃO</div>
+      <nav class="side-nav" aria-label="Menu da babá">
+        <button class="side-link active" data-screen="inicio"><span class="side-icon">⌂</span>Início</button>
+        <button class="side-link" data-screen="perfil"><span class="side-icon">◉</span>Meu perfil</button>
+        <button class="side-link" data-screen="documentos"><span class="side-icon">▤</span>Certidão<span class="nav-count alert">1</span></button>
+        <button class="side-link" data-screen="entrevistas"><span class="side-icon">◫</span>Entrevistas<span class="nav-count">3</span></button>
+        <button class="side-link" data-screen="conversas"><span class="side-icon">✉</span>Conversas</button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <a href="../home/home.html" class="back-link">← Voltar para início</a>
+        <div class="profile-user">
+          <span class="user-avatar">LS</span>
+          <span><strong>Luciana Silva</strong><small>luciana@babysite.com</small></span>
+          <button class="logout-button" title="Sair">↗</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <button class="mobile-menu" aria-label="Abrir menu" onclick="document.body.classList.toggle('sidebar-open')">☰</button>
+        <div>
+          <p class="breadcrumb">BABÁ / <strong id="breadcrumbName">INÍCIO</strong></p>
+          <h1 id="screenTitle">Visão geral</h1>
+        </div>
+        <div class="topbar-actions">
+          <button class="notification-button" title="Notificações">◌<i>2</i></button>
+          <span class="date-label">06 set 2026</span>
+        </div>
+      </header>
+
+      <section class="screen active-screen" data-screen-content="inicio">
+        <div class="welcome-row">
+          <div>
+            <p class="eyebrow">CENTRAL PROFISSIONAL</p>
+            <h2>Seu trabalho, <em>do seu jeito.</em></h2>
+            <p class="muted">Organize sua agenda, atualize sua disponibilidade e acompanhe as novas oportunidades.</p>
+          </div>
+          <span class="status-pill pending">◉ Perfil em análise</span>
+        </div>
+
+        <div class="metrics">
+          <article>
+            <span>Visualizações do perfil</span>
+            <strong>248</strong>
+            <small>↑ 12% esta semana</small>
+          </article>
+          <article>
+            <span>Nota média</span>
+            <strong>4.9</strong>
+            <small>★ excelente</small>
+          </article>
+          <article>
+            <span>Solicitações novas</span>
+            <strong>3</strong>
+            <small>2 aguardando resposta</small>
+          </article>
+          <article class="dark-metric">
+            <span>Tarifa atual</span>
+            <strong>R$ 45</strong>
+            <small>por hora</small>
+          </article>
+        </div>
+
+        <div class="content-grid">
+          <section class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">PERFIL PROFISSIONAL</p>
+                <h3>Apresente seu cuidado</h3>
+              </div>
+              <span class="completion">80% completo</span>
+            </div>
+
+            <form class="profile-form" id="profileForm">
+              <label>Tarifa por hora <div class="input-prefix"><span>R$</span><input type="number" value="45" min="1"><span>/hora</span></div></label>
+              <label>Experiência <input type="text" value="18 meses"></label>
+              <label class="wide">Sobre você <textarea rows="3">Cuido de cada criança com presença, responsabilidade e afeto.</textarea></label>
+              <label class="wide upload-field">
+                <span>Certidão de antecedentes criminais</span>
+                <input id="pdfUpload" type="file" accept="application/pdf">
+                <span class="upload-box"><b>↑</b><span id="fileName">Clique para enviar seu documento<br><small>PDF até 10 MB</small></span></span>
+                <small class="file-status" id="fileStatus">✓ Documento aprovado pela administração</small>
+              </label>
+              <button class="primary-button" type="submit">Salvar alterações</button>
+            </form>
+          </section>
+
+          <section class="panel request-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">AÇÕES PENDENTES</p>
+                <h3>Entrevistas</h3>
+              </div>
+              <span class="count-badge">3</span>
+            </div>
+
+            <div class="request-item">
+              <span class="avatar coral">CE</span>
+              <div>
+                <strong>Carlos Eduardo</strong>
+                <small>15/10/2026 · 14:00</small>
+                <span>Conversa sobre rotina escolar</span>
+              </div>
+              <div class="request-actions">
+                <button class="approve-button" data-toast="Entrevista aceita.">Aceitar</button>
+                <button class="decline-button" data-toast="Entrevista recusada.">Recusar</button>
+              </div>
+            </div>
+
+            <div class="request-item">
+              <span class="avatar teal">MR</span>
+              <div>
+                <strong>Mariana Reis</strong>
+                <small>18/10/2026 · 09:30</small>
+                <span>Entrevista por vídeo</span>
+              </div>
+              <div class="request-actions">
+                <button class="approve-button" data-toast="Entrevista aceita.">Aceitar</button>
+                <button class="decline-button" data-toast="Entrevista recusada.">Recusar</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="screen" data-screen-content="perfil">
+        <div class="screen-heading">
+          <div>
+            <p class="eyebrow">MEU PERFIL</p>
+            <h2>Atualização do cadastro</h2>
+            <p class="muted">Mantenha informações profissionais e a apresentação do seu perfil sempre alinhadas.</p>
+          </div>
+        </div>
+
+        <section class="panel profile-editor">
+          <form class="profile-form full" id="profileEditForm">
+            <label>Nome completo <input type="text" value="Luciana Silva"></label>
+            <label>Disponibilidade <input type="text" value="Segunda a sábado · 8h às 18h"></label>
+            <label class="wide">Especialidades <textarea rows="3">Cuidados infantis, pós-escola e rotina tranquila em casa.</textarea></label>
+            <label class="wide">Descrição de atendimento <textarea rows="5">Acompanho cada criança com atenção, organização e afeto, respeitando a rotina da família.</textarea></label>
+            <button class="primary-button" type="submit">Salvar perfil</button>
+          </form>
+        </section>
+      </section>
+
+      <section class="screen" data-screen-content="documentos">
+        <div class="screen-heading">
+          <div>
+            <p class="eyebrow">CERTIDÃO</p>
+            <h2>Documentos e validação</h2>
+            <p class="muted">Envie e acompanhe o status da sua certidão de antecedentes antes da publicação do perfil.</p>
+          </div>
+        </div>
+
+        <div class="document-card">
+          <div class="document-top">
+            <span class="file-tag">PDF</span>
+            <span class="status approved">Aprovado</span>
+          </div>
+          <h3>Certidão de antecedentes criminais</h3>
+          <p>Enviada em 02 out 2026 · validade até 02 out 2027</p>
+          <div class="document-actions">
+            <button class="secondary-button" data-toast="Documento em visualização.">Visualizar PDF</button>
+            <button class="primary-button" data-toast="Novo envio solicitado.">Enviar novamente</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" data-screen-content="entrevistas">
+        <div class="screen-heading">
+          <div>
+            <p class="eyebrow">ENTREVISTAS</p>
+            <h2>Agenda e solicitações</h2>
+            <p class="muted">Acompanhe as conversas, confirme horários e mantenha a conversa alinhada com cada família.</p>
+          </div>
+        </div>
+
+        <div class="appointment-list">
+          <article class="appointment-card">
+            <div class="appointment-head">
+              <span class="avatar coral">CE</span>
+              <div>
+                <strong>Carlos Eduardo</strong>
+                <small>15 out · 14:00</small>
+              </div>
+            </div>
+            <p>Conversa inicial sobre rotina escolar e cuidado do Lucas.</p>
+            <div class="appointment-actions">
+              <span class="status-pill good">Aceita</span>
+              <button class="small-button" data-toast="Horário disponível para alteração.">Reagendar</button>
+            </div>
+          </article>
+
+          <article class="appointment-card">
+            <div class="appointment-head">
+              <span class="avatar teal">MR</span>
+              <div>
+                <strong>Mariana Reis</strong>
+                <small>18 out · 09:30</small>
+              </div>
+            </div>
+            <p>Entrevista por vídeo para entender a rotina da casa.</p>
+            <div class="appointment-actions">
+              <span class="status-pill pending">Pendente</span>
+              <button class="small-button" data-toast="Solicitação em análise.">Responder</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="screen" data-screen-content="conversas">
+        <div class="screen-heading">
+          <div>
+            <p class="eyebrow">CONVERSAS</p>
+            <h2>Mensagens recebidas</h2>
+            <p class="muted">Responda de forma ágil e mantenha a comunicação leve e clara com as famílias.</p>
+          </div>
+        </div>
+
+        <div class="chat-shell full-chat">
+          <div class="conversation-list">
+            <button class="conversation active" data-chat="Carlos Eduardo">
+              <span class="avatar coral">CE</span>
+              <span><strong>Carlos Eduardo</strong><small>Confirmado para amanhã</small></span>
+              <b>2</b>
+            </button>
+            <button class="conversation" data-chat="Mariana Reis">
+              <span class="avatar teal">MR</span>
+              <span><strong>Mariana Reis</strong><small>Olá, tenho interesse!</small></span>
+            </button>
+          </div>
+
+          <div class="chat-window">
+            <div class="chat-top">
+              <span class="avatar coral">CE</span>
+              <span>
+                <strong id="chatName">Carlos Eduardo</strong>
+                <small>Responsável · conversa ativa</small>
+              </span>
+              <div class="chat-actions">
+                <button class="button-secondary" data-toast="Agenda enviada.">Sugerir horário</button>
+              </div>
+            </div>
+            <div class="messages large-messages">
+              <div class="message received">Olá, Luciana! Gostaria de saber como funciona a rotina com o Lucas.</div>
+              <div class="message sent">Tudo bem, posso te explicar com calma e adaptar ao seu ritmo.</div>
+            </div>
+            <form class="message-form" id="messageForm">
+              <input id="messageInput" type="text" placeholder="Digite sua resposta..." autocomplete="off">
+              <button class="send-button" aria-label="Enviar mensagem">↑</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="../../js/baba/baba.js"></script>
+</body>
+</html>

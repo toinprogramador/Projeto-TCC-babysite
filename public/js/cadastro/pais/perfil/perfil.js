@@ -1,22 +1,18 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const inputFoto = document.getElementById('foto_perfil');
-  const imgPreview = document.getElementById('img-preview');
-  const placeholder = document.getElementById('preview-placeholder');
-
-  if (inputFoto) {
-    inputFoto.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        
-        reader.onload = (event) => {
-          imgPreview.src = event.target.result;
-          imgPreview.classList.remove('d-none');
-          placeholder.classList.add('d-none');
-        };
-
-        reader.readAsDataURL(file);
-      }
-    });
-  }
+const account = JSON.parse(sessionStorage.getItem('babysite_pais') || '{}');
+const initials = (account.nome || 'Usuário').split(' ').filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase();
+document.getElementById('nomePerfil').textContent = account.nome || 'Seu nome';
+document.getElementById('avatarInitials').textContent = initials;
+document.getElementById('parentProfileForm').addEventListener('submit', (event) => {
+  event.preventDefault();
+  const file = document.getElementById('foto_perfil').files[0];
+  account.foto_perfil = file ? file.name : `iniciais:${initials}`;
+  sessionStorage.setItem('babysite_pais', JSON.stringify(account));
+  window.location.href = '../senha/senha.html';
+});
+document.getElementById('foto_perfil').addEventListener('change', (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => { document.getElementById('avatarImage').src = reader.result; document.getElementById('avatarImage').classList.remove('d-none'); document.getElementById('avatarInitials').classList.add('d-none'); };
+  reader.readAsDataURL(file);
 });
