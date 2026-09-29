@@ -1,14 +1,29 @@
-const account = JSON.parse(sessionStorage.getItem('babysite_pais') || '{}');
-document.getElementById('parentPasswordForm').addEventListener('submit', (event) => {
+const account = JSON.parse(localStorage.getItem('babysite_pais') || '{}');
+const form = document.getElementById('parentPasswordForm');
+form.addEventListener('submit', async (event) => {
   event.preventDefault();
   const password = document.getElementById('senha').value;
   const confirmation = document.getElementById('confirmar_senha').value;
   const error = document.getElementById('passwordError');
+  const submitButton = form.querySelector('button[type="submit"]');
   error.textContent = '';
   if (password.length < 8) { error.textContent = 'A senha deve ter pelo menos 8 caracteres.'; return; }
   if (password !== confirmation) { error.textContent = 'As senhas não conferem.'; return; }
-  account.senha = password;
-  localStorage.setItem('babysite_pais', JSON.stringify(account));
-  sessionStorage.removeItem('babysite_pais');
-  window.location.href = '../../../../pais/home-pais.html';
+  submitButton.disabled = true;
+  try {
+    const response = await fetch('/api/cadastros', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...account, tipo_usuario: 'pais', senha: password })
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.erro || 'Não foi possível concluir o cadastro.');
+    account.usuario_codigo = result.usuario_codigo;
+    delete account.senha;
+    localStorage.setItem('babysite_pais', JSON.stringify(account));
+    window.location.href = '../../../../pais/home-pais.html';
+  } catch (requestError) {
+    error.textContent = requestError.message || 'Não foi possível conectar ao servidor.';
+    submitButton.disabled = false;
+  }
 });

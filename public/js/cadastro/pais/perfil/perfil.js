@@ -1,4 +1,4 @@
-const account = JSON.parse(sessionStorage.getItem('babysite_pais') || '{}');
+const account = JSON.parse(localStorage.getItem('babysite_pais') || '{}');
 const initials = (account.nome || 'Usuário').split(' ').filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase();
 document.getElementById('nomePerfil').textContent = account.nome || 'Seu nome';
 document.getElementById('avatarInitials').textContent = initials;
@@ -6,7 +6,7 @@ document.getElementById('parentProfileForm').addEventListener('submit', (event) 
   event.preventDefault();
   const file = document.getElementById('foto_perfil').files[0];
   account.foto_perfil = file ? file.name : `iniciais:${initials}`;
-  sessionStorage.setItem('babysite_pais', JSON.stringify(account));
+  localStorage.setItem('babysite_pais', JSON.stringify(account));
   window.location.href = '../senha/senha.html';
 });
 document.getElementById('foto_perfil').addEventListener('change', (event) => {

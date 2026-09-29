@@ -78,6 +78,7 @@ As áreas de Pais, Babá e Admin seguem o mesmo modelo de interface:
 - Editar apresentação profissional.
 - Definir tarifa por hora.
 - Informar experiência e disponibilidade.
+- Cadastrar e alterar dias e horários habituais de trabalho. Essa informação é apenas descritiva e não limita solicitações de entrevista.
 - Controlar quais informações aparecem para as famílias.
 
 ### Certidão de antecedentes
@@ -93,6 +94,7 @@ As áreas de Pais, Babá e Admin seguem o mesmo modelo de interface:
 - Aceitar ou recusar.
 - Sugerir outro horário.
 - Consultar histórico de entrevistas.
+- Os horários de trabalho informados no perfil não criam, bloqueiam nem aceitam entrevistas. Responsável e babá combinam o horário pelo chat; o responsável envia a solicitação e a babá decide se aceita.
 
 ### Conversas
 

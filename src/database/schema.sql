@@ -31,6 +31,21 @@ CREATE TABLE IF NOT EXISTS baba (
     FOREIGN KEY (usuario_codigo) REFERENCES usuario (usuario_codigo)
 );
 
+CREATE TABLE IF NOT EXISTS credencial (
+    usuario_codigo CHAR(12) PRIMARY KEY,
+    senha_hash TEXT NOT NULL,
+    FOREIGN KEY (usuario_codigo) REFERENCES usuario (usuario_codigo)
+);
+
+CREATE TABLE IF NOT EXISTS baba_disponibilidade (
+    codigo_baba CHAR(12) NOT NULL,
+    dia_semana VARCHAR(10) NOT NULL,
+    hora_inicio CHAR(5) NOT NULL,
+    hora_fim CHAR(5) NOT NULL,
+    PRIMARY KEY (codigo_baba, dia_semana),
+    FOREIGN KEY (codigo_baba) REFERENCES baba (codigo_baba) ON DELETE CASCADE
+);
+
 -- Índices de Unicidade
 CREATE UNIQUE INDEX IF NOT EXISTS idx_usuario_cpf ON usuario (cpf);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_usuario_email_1 ON usuario (email_1);

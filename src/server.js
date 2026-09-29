@@ -1,5 +1,5 @@
 const app = require('./app');
-const adminApp = require('./adminApp');
+const adminApp = require('./admin_App');
 // Carrega o banco de dados e executa o schema e seeders na inicialização
 require('./database/connection');
 
