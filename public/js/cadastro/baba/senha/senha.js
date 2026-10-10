@@ -19,8 +19,10 @@ form.addEventListener('submit', async (event) => {
     const result = await response.json();
     if (!response.ok) throw new Error(result.erro || 'Não foi possível concluir o cadastro.');
     account.usuario_codigo = result.usuario_codigo;
+    account.codigo_perfil = result.codigo_perfil;
     delete account.senha;
     localStorage.setItem('babysite_baba', JSON.stringify(account));
+    localStorage.setItem('babysite_token', result.token);
     window.location.href = '../../../../baba/home-baba.html';
   } catch (requestError) {
     error.textContent = requestError.message || 'Não foi possível conectar ao servidor.';

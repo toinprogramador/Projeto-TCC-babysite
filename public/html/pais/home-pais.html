@@ -19,8 +19,8 @@
       <nav class="side-nav" aria-label="Menu do responsável">
         <button class="side-link active" data-screen="inicio"><span class="side-icon">⌂</span>Início</button>
         <button class="side-link" data-screen="perfil"><span class="side-icon">◉</span>Perfil</button>
-        <button class="side-link" data-screen="conversas"><span class="side-icon">✉</span>Conversas<span class="nav-count">2</span></button>
-        <button class="side-link" data-screen="entrevistas"><span class="side-icon">◫</span>Entrevistas<span class="nav-count alert">1</span></button>
+        <button class="side-link" data-screen="conversas"><span class="side-icon">✉</span>Conversas<span class="nav-count">0</span></button>
+        <button class="side-link" data-screen="entrevistas"><span class="side-icon">◫</span>Entrevistas<span class="nav-count alert">0</span></button>
         <button class="side-link" data-screen="configuracoes"><span class="side-icon">⚙</span>Configurações</button>
       </nav>
 
@@ -28,8 +28,8 @@
         <a href="../home/home.html" class="back-link">← Voltar para início</a>
         <div class="profile-user">
           <span class="user-avatar">CO</span>
-          <span><strong>Carlos Oliveira</strong><small>familia@babysite.com</small></span>
-          <button class="logout-button" title="Sair">↗</button>
+          <span><strong id="currentUserNameSidebar">Responsável</strong><small id="currentUserEmailSidebar"></small></span>
+          <button class="logout-button" title="Sair" onclick="logout()">↗</button>
         </div>
       </div>
     </aside>
@@ -42,7 +42,7 @@
           <h1 id="screenTitle">Início</h1>
         </div>
         <div class="topbar-actions">
-          <button class="notification-button" title="Notificações">◌<i>3</i></button>
+          <button class="notification-button" title="Notificações">◌<i>0</i></button>
           <span class="date-label">06 set 2026</span>
         </div>
       </header>
@@ -59,29 +59,25 @@
             <div class="visitor-hero-art" aria-label="Profissionais disponíveis para conversar">
               <span class="visitor-figure visitor-figure-one">LS</span>
               <span class="visitor-figure visitor-figure-two">AM</span>
-              <span class="visitor-note"><strong>4.9</strong><small>avaliação média</small></span>
+              <span class="visitor-note"><strong id="visitorHeroCount">0</strong><small>babás ativas</small></span>
             </div>
           </div>
 
-          <div class="visitor-trust"><span><strong>+2.400</strong> famílias cuidadas</span><span><strong>98%</strong> recomendam</span><span><strong>100%</strong> perfis analisados</span></div>
+          <div class="visitor-trust"><span><strong id="activeSitterCount">0</strong> babás ativas</span><span>Perfis do banco de dados</span><span>Status atualizado</span></div>
 
           <div class="visitor-heading">
             <div><p class="eyebrow">ENCONTRE COM CALMA</p><h2>Profissionais perto de você</h2></div>
-            <span class="muted">3 perfis disponíveis</span>
+            <span class="muted" id="visitorResultCount">0 perfis disponíveis</span>
           </div>
 
           <div class="visitor-filters">
-            <input type="search" placeholder="Nome, cidade ou experiência">
-            <select><option>Todos os estados</option><option>Paraíba</option><option>São Paulo</option><option>Rio de Janeiro</option></select>
-            <select><option>Todos os tipos de cuidado</option><option>Rotina</option><option>Ocasional</option><option>Pós-escola</option></select>
-            <select><option>Qualquer valor</option><option>Até R$ 40/hora</option><option>Até R$ 45/hora</option><option>Até R$ 50/hora</option></select>
+            <input id="visitorSearch" type="search" placeholder="Nome da profissional">
+            <select disabled title="Localização ainda não cadastrada"><option>Localização não cadastrada</option></select>
+            <select disabled title="Especialidades ainda não cadastradas"><option>Especialidade não cadastrada</option></select>
+            <select disabled title="Tarifa ainda não cadastrada"><option>Tarifa não cadastrada</option></select>
           </div>
 
-          <div class="visitor-profiles">
-            <article class="visitor-profile"><div class="profile-cover coral"><strong>LS</strong><span>✓ verificada</span><b>★ 4.9</b></div><div><h3>Luciana Silva</h3><small>João Pessoa, PB</small><p>18 meses de experiência</p><label>Rotina e primeira infância</label><label>128h disponíveis</label></div></article>
-            <article class="visitor-profile"><div class="profile-cover teal"><strong>AM</strong><span>✓ verificada</span><b>★ 4.8</b></div><div><h3>Ana Maria</h3><small>São Paulo, SP</small><p>2 anos de experiência</p><label>Finais de semana e eventos</label><label>80h disponíveis</label></div></article>
-            <article class="visitor-profile"><div class="profile-cover gold"><strong>MR</strong><span>em análise</span><b>★ 4.7</b></div><div><h3>Marina Ramos</h3><small>Campina Grande, PB</small><p>12 meses de experiência</p><label>Pós-escola e tarefas</label><label>124h disponíveis</label></div></article>
-          </div>
+          <div class="visitor-profiles" id="visitorProfiles"></div>
         </div>
       </section>
 
@@ -89,8 +85,8 @@
         <div class="welcome-row">
           <div>
             <p class="eyebrow">ESPAÇO DA FAMÍLIA</p>
-            <h2>Olá, Carlos <em>bonito ver você aqui.</em></h2>
-            <p class="muted">Tudo organizado para acompanhar a rotina dos seus filhos com confiança.</p>
+            <h2>Olá, <span id="currentUserGreeting">Responsável</span> <em>bonito ver você aqui.</em></h2>
+            <p class="muted">Tudo organizado para acompanhar sua busca por profissionais com confiança.</p>
           </div>
           <span class="status-pill good">✓ Conta verificada</span>
         </div>
@@ -98,23 +94,23 @@
         <div class="metrics">
           <article>
             <span>Perfil completo</span>
-            <strong>100%</strong>
-            <small>Atualizado hoje</small>
+            <strong id="profileCompletion">--</strong>
+            <small>Dados do cadastro</small>
           </article>
           <article>
             <span>Conversas ativas</span>
-            <strong>2</strong>
-            <small>1 nova mensagem</small>
+            <strong>0</strong>
+            <small>Nenhuma conversa registrada</small>
           </article>
           <article>
             <span>Próxima entrevista</span>
-            <strong>15 out</strong>
-            <small>às 14:00</small>
+            <strong>--</strong>
+            <small>Nenhuma entrevista registrada</small>
           </article>
           <article class="dark-metric">
-            <span>Seu nível de confiança</span>
-            <strong>Alto</strong>
-            <small>perfil já validado</small>
+            <span>Status da conta</span>
+            <strong>Ativa</strong>
+            <small>Sessão autenticada</small>
           </article>
         </div>
 
@@ -128,22 +124,7 @@
               <button class="link-button" data-screen-target="conversas">Ver tudo →</button>
             </div>
 
-            <div class="list-table">
-              <div class="list-row">
-                <div>
-                  <strong>Lucas Oliveira</strong>
-                  <small>Confirmado para amanhã</small>
-                </div>
-                <button class="small-button" data-screen-target="conversas">Abrir</button>
-              </div>
-              <div class="list-row">
-                <div>
-                  <strong>Ana Maria</strong>
-                  <small>Olá, tenho interesse!</small>
-                </div>
-                <button class="small-button" data-screen-target="conversas">Abrir</button>
-              </div>
-            </div>
+            <div class="list-table"><div class="list-row"><p class="muted">Nenhuma conversa registrada.</p></div></div>
           </section>
 
           <aside class="panel quick-panel">
@@ -160,34 +141,18 @@
               <p class="eyebrow">CONVERSAS</p>
               <h3>Fale com sua babá</h3>
             </div>
-            <span class="online-label"><i></i> 1 online agora</span>
+            <span class="online-label">0 conversas</span>
           </div>
 
           <div class="chat-shell">
-            <div class="conversation-list">
-              <button class="conversation active" data-chat="Luciana Silva">
-                <span class="avatar coral">LS</span>
-                <span>
-                  <strong>Luciana Silva</strong>
-                  <small>Confirmado para amanhã</small>
-                </span>
-                <b>2</b>
-              </button>
-              <button class="conversation" data-chat="Ana Maria">
-                <span class="avatar teal">AM</span>
-                <span>
-                  <strong>Ana Maria</strong>
-                  <small>Olá, tenho interesse!</small>
-                </span>
-              </button>
-            </div>
+            <div class="conversation-list"><p class="muted">Nenhuma conversa registrada.</p></div>
 
             <div class="chat-window">
               <div class="chat-top">
-                <span class="avatar coral">LS</span>
+                <span class="avatar coral">--</span>
                 <span>
-                  <strong id="chatName">Luciana Silva</strong>
-                  <small>Babá verificada · responde rápido</small>
+                  <strong id="chatName">Nenhuma conversa selecionada</strong>
+                  <small>As mensagens aparecerão aqui.</small>
                 </span>
                 <div class="chat-actions">
                   <button class="button-secondary" data-screen-target="entrevistas">Agendar entrevista</button>
@@ -195,15 +160,11 @@
                 </div>
               </div>
 
-              <div class="messages" id="messages">
-                <div class="message received">Oi, Carlos! Vi as informações do seu perfil. Posso conversar na quinta à tarde.</div>
-                <div class="message sent">Perfeito, Luciana. Vou enviar o convite por aqui.</div>
-                <div class="message received">Combinado. Até lá!</div>
-              </div>
+              <div class="messages" id="messages"><p class="muted">Nenhuma mensagem registrada.</p></div>
 
               <form class="message-form" id="messageForm">
-                <input id="messageInput" type="text" placeholder="Escreva uma mensagem..." autocomplete="off">
-                <button class="send-button" aria-label="Enviar mensagem">↑</button>
+                <input id="messageInput" type="text" placeholder="Mensagens indisponíveis sem conversa" autocomplete="off" disabled>
+                <button class="send-button" aria-label="Enviar mensagem" disabled>↑</button>
               </form>
             </div>
           </div>
@@ -220,37 +181,24 @@
         </div>
 
         <div class="chat-shell full-chat">
-          <div class="conversation-list">
-            <button class="conversation active" data-chat="Luciana Silva">
-              <span class="avatar coral">LS</span>
-              <span><strong>Luciana Silva</strong><small>Confirmado para amanhã</small></span>
-              <b>2</b>
-            </button>
-            <button class="conversation" data-chat="Ana Maria">
-              <span class="avatar teal">AM</span>
-              <span><strong>Ana Maria</strong><small>Olá, tenho interesse!</small></span>
-            </button>
-          </div>
+          <div class="conversation-list"><p class="muted">Nenhuma conversa registrada.</p></div>
 
           <div class="chat-window">
             <div class="chat-top">
-              <span class="avatar coral">LS</span>
+                <span class="avatar coral">--</span>
               <span>
-                <strong id="chatNameFull">Luciana Silva</strong>
-                <small>Babá verificada</small>
+                  <strong id="chatNameFull">Nenhuma conversa selecionada</strong>
+                  <small>As mensagens aparecerão aqui.</small>
               </span>
               <div class="chat-actions">
                 <button class="button-secondary" data-toast="Solicitação de entrevista enviada.">Agendar</button>
                 <button class="button-primary" data-toast="Avaliação enviada.">Avaliar</button>
               </div>
             </div>
-            <div class="messages large-messages">
-              <div class="message received">Posso conversar sobre todos os detalhes do trabalho por aqui.</div>
-              <div class="message sent">Ótimo. Vamos combinar todos os detalhes por aqui.</div>
-            </div>
+            <div class="messages large-messages"><p class="muted">Nenhuma mensagem registrada.</p></div>
             <form class="message-form" id="messageFormFull">
-              <input id="messageInputFull" type="text" placeholder="Digite sua mensagem..." autocomplete="off">
-              <button class="send-button" aria-label="Enviar mensagem">↑</button>
+              <input id="messageInputFull" type="text" placeholder="Mensagens indisponíveis sem conversa" autocomplete="off" disabled>
+              <button class="send-button" aria-label="Enviar mensagem" disabled>↑</button>
             </form>
           </div>
         </div>
@@ -263,40 +211,10 @@
             <h2>Próximos encontros</h2>
             <p class="muted">Acompanhe cada etapa da seleção e confirme a melhor disponibilidade.</p>
           </div>
-          <button class="primary-button" data-toast="Nova entrevista marcada.">+ Agendar</button>
+          <button class="primary-button" disabled title="Agendamento ainda não disponível">+ Agendar</button>
         </div>
 
-        <div class="appointment-list">
-          <article class="appointment-card">
-            <div class="appointment-head">
-              <span class="avatar coral">LS</span>
-              <div>
-                <strong>Luciana Silva</strong>
-                <small>15 out · 14:00</small>
-              </div>
-            </div>
-            <p>Conversa inicial sobre rotina escolar e cuidados do Lucas.</p>
-            <div class="appointment-actions">
-              <span class="status-pill good">Confirmada</span>
-              <button class="small-button" data-toast="Entrevista confirmada.">Alterar horário</button>
-            </div>
-          </article>
-
-          <article class="appointment-card">
-            <div class="appointment-head">
-              <span class="avatar teal">AM</span>
-              <div>
-                <strong>Ana Maria</strong>
-                <small>18 out · 09:30</small>
-              </div>
-            </div>
-            <p>Conversa por mensagens para alinhar os detalhes do trabalho.</p>
-            <div class="appointment-actions">
-              <span class="status-pill pending">Pendente</span>
-              <button class="small-button" data-toast="Solicitação enviada para revisão.">Confirmar</button>
-            </div>
-          </article>
-        </div>
+        <div class="appointment-list"><p class="muted">Nenhuma entrevista registrada.</p></div>
       </section>
 
       <section class="screen" data-screen-content="configuracoes">

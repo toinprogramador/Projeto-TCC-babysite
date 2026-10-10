@@ -1,6 +1,8 @@
 const { randomBytes, scrypt } = require('crypto');
 const { promisify } = require('util');
 const Cadastro = require('../models/Cadastro');
+const Usuario = require('../models/Usuario');
+const Sessoes = require('../middleware/Sessoes');
 
 const derivarSenha = promisify(scrypt);
 
@@ -39,10 +41,21 @@ const cadastroController = {
                 senhaHash: `${sal}:${hash}`
             });
 
+            const usuario = await new Promise((resolve, reject) => {
+                Usuario.buscarPerfilPorCodigo(usuarioCodigo, (erroConsulta, perfil) => {
+                    if (erroConsulta) return reject(erroConsulta);
+                    resolve(perfil);
+                });
+            });
+            if (!usuario) return res.status(500).json({ erro: 'Não foi possível carregar o perfil cadastrado.' });
+            const token = Sessoes.criar(usuario);
+
             return res.status(201).json({
                 mensagem: 'Cadastro realizado com sucesso.',
                 usuario_codigo: usuarioCodigo,
-                codigo_perfil: perfilCodigo
+                codigo_perfil: perfilCodigo,
+                token,
+                perfil: usuario
             });
         } catch (erro) {
             if (erro.code === 'SQLITE_CONSTRAINT') {

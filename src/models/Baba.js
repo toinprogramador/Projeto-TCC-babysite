@@ -21,7 +21,7 @@ function consultar(sql, valores = []) {
 const Baba = {
     // Listar todas as babás ativas para o site público
     listarAtivas: (callback) => {
-        const sql = `SELECT b.codigo_baba, u.nome, b.telefone, b.email_1, b.foto, b.status_cadastro 
+        const sql = `SELECT b.codigo_baba, u.nome, b.foto, b.status_cadastro
                      FROM baba AS b 
                      INNER JOIN usuario AS u ON b.usuario_codigo = u.usuario_codigo 
                      WHERE b.status_cadastro = 'Ativa' 

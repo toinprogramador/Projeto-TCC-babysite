@@ -23,6 +23,46 @@ function showToast(message) {
   showToast.timeout = window.setTimeout(() => toast.classList.remove('visible'), 2800);
 }
 
+async function loadProfile() {
+  const token = localStorage.getItem('babysite_token');
+  if (!token) {
+    window.location.replace('../home/home.html');
+    return;
+  }
+  try {
+    const response = await fetch('/api/sessao', { headers: { Authorization: `Bearer ${token}` } });
+    if (response.status === 401) {
+      localStorage.removeItem('babysite_token');
+      window.location.replace('../home/home.html');
+      return;
+    }
+    if (!response.ok) throw new Error('Não foi possível carregar seu perfil.');
+    const profile = await response.json();
+    if (profile.tipo_usuario !== 'baba') {
+      window.location.replace(profile.tipo_usuario === 'pais' ? '../pais/home-pais.html' : '../home/home.html');
+      return;
+    }
+    document.getElementById('currentUserNameSidebar').textContent = profile.nome;
+    document.getElementById('currentUserEmailSidebar').textContent = profile.email_1;
+    document.getElementById('currentUserAvatar').textContent = profile.nome.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase();
+    document.getElementById('profileName').value = profile.nome;
+    const status = document.getElementById('profileStatus');
+    const active = profile.status_cadastro === 'Ativa';
+    status.textContent = active ? '✓ Perfil ativo' : '◉ Perfil em análise';
+    status.classList.toggle('good', active);
+    status.classList.toggle('pending', !active);
+  } catch (error) {
+    showToast(error.message);
+  }
+}
+
+async function logout() {
+  const token = localStorage.getItem('babysite_token');
+  if (token) await fetch('/api/sessao', { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
+  localStorage.removeItem('babysite_token');
+  window.location.replace('../home/home.html');
+}
+
 function bindActions() {
   document.querySelectorAll('.side-link').forEach((item) => {
     item.addEventListener('click', () => showScreen(item.dataset.screen));
@@ -82,4 +122,7 @@ function bindActions() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', bindActions);
+document.addEventListener('DOMContentLoaded', () => {
+  bindActions();
+  loadProfile();
+});
