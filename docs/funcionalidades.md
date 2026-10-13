@@ -47,24 +47,34 @@ As áreas de Pais, Babá e Admin seguem o mesmo modelo de interface:
 
 ### Perfil
 
-- Visualizar dados da babá selecionada.
-- Ver apresentação, experiência, avaliação e disponibilidade.
+- Abrir o perfil detalhado da babá selecionada em `perfil_baba`.
+- Ver apresentação, experiência, avaliação e disponibilidade, quando informadas.
 - Acessar informações principais antes de contratar.
-- Iniciar contato ou solicitar entrevista.
+- Conversar com a babá, solicitar entrevista ou propor contratação.
+
+### Entrevistas e contratos
+
+- O responsável envia uma solicitação de entrevista com data, horário e formato.
+- A solicitação fica pendente para a babá; quando aceita, é removida das solicitações e cria um compromisso em Entrevistas para os dois perfis. Quando recusada, é removida sem criar entrevista.
+- O responsável envia uma solicitação de contratação com data de início e dias/horários de trabalho.
+- A solicitação fica pendente para a babá; quando aceita, é removida das solicitações e cria um contrato para os dois perfis. Quando recusada, é removida sem criar contrato.
+- Consultar solicitações pendentes, entrevistas aceitas e contratos aceitos nas áreas de Pais e Babá.
 
 ### Conversas
 
 - Lista de conversas com babás.
-- Mensagens no formato de chat.
+- Enviar e receber mensagens persistidas no banco.
+- Atualizar mensagens novas automaticamente enquanto a tela está aberta.
 - Indicador de presença e mensagens não lidas.
 - Botão para agendar entrevista.
 - Botão para avaliar o atendimento com estrelas e comentário.
 
 ### Entrevistas e agendamentos
 
-- Visualizar data, horário, formato e status.
+- Visualizar entrevistas aceitas com data, horário, formato e status.
 - Cancelar ou solicitar novo horário.
 - Receber confirmação da babá.
+- Consultar contratos aceitos, com data de início e horários semanais.
 
 ## Home Babá
 
@@ -78,7 +88,7 @@ As áreas de Pais, Babá e Admin seguem o mesmo modelo de interface:
 - Editar apresentação profissional.
 - Definir tarifa por hora.
 - Informar experiência e disponibilidade.
-- Cadastrar e alterar dias e horários habituais de trabalho. Essa informação é apenas descritiva e não limita solicitações de entrevista.
+- Cadastrar e alterar dias e horários habituais de trabalho. A disponibilidade é uma relação de horários por dia da semana associada à babá; não representa solicitação nem contrato.
 - Controlar quais informações aparecem para as famílias.
 
 ### Certidão de antecedentes
@@ -90,15 +100,20 @@ As áreas de Pais, Babá e Admin seguem o mesmo modelo de interface:
 
 ### Entrevistas
 
-- Visualizar solicitações recebidas.
-- Aceitar ou recusar.
-- Sugerir outro horário.
-- Consultar histórico de entrevistas.
-- Os horários de trabalho informados no perfil não criam, bloqueiam nem aceitam entrevistas. Responsável e babá combinam o horário pelo chat; o responsável envia a solicitação e a babá decide se aceita.
+- Receber solicitações de entrevista com data, horário e formato.
+- Aceitar para criar o registro permanente na agenda de entrevistas ou recusar para remover a solicitação sem criar compromisso.
+- Consultar entrevistas aceitas.
+
+### Contratos
+
+- Receber solicitações com data de início e dias/horários semanais propostos pelo responsável.
+- Aceitar para criar o contrato permanente ou recusar para remover a solicitação sem criar contrato.
+- Consultar contratos aceitos e seus horários.
 
 ### Conversas
 
-- Responder famílias em uma interface de chat.
+- Responder famílias em uma interface de chat com mensagens persistidas.
+- Atualizar mensagens novas automaticamente enquanto a tela está aberta.
 - Consultar o contexto da criança antes da entrevista.
 - Receber alertas de novas mensagens.
 
@@ -152,4 +167,4 @@ As áreas de Pais, Babá e Admin seguem o mesmo modelo de interface:
 
 ## Próximas integrações
 
-A implementação atual usa dados simulados para demonstrar as interações. Para conectar ao backend, substituir as fontes locais por chamadas de API para autenticação, usuários, mensagens, agendamentos, documentos e denúncias. As funções do JavaScript já devem permanecer separadas da marcação para facilitar essa troca.
+A disponibilidade semanal, solicitações de entrevista e contratação, registros aceitos e conversas/mensagens estão conectados à API e ao banco de dados. Documentos, avaliações, relatórios e denúncias ainda precisam de integração completa; as funções do JavaScript devem permanecer separadas da marcação para facilitar essa evolução.

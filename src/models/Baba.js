@@ -29,6 +29,14 @@ const Baba = {
         db.all(sql, [], callback);
     },
 
+    buscarPerfilPublico: (codigo_baba, callback) => {
+        const sql = `SELECT b.codigo_baba, u.nome, b.foto, b.status_cadastro
+                     FROM baba AS b
+                     INNER JOIN usuario AS u ON b.usuario_codigo = u.usuario_codigo
+                     WHERE b.codigo_baba = ? AND b.status_cadastro = 'Ativa'`;
+        db.get(sql, [codigo_baba], callback);
+    },
+
     buscarPorCodigo: (codigo_baba, callback) => {
         db.get('SELECT codigo_baba FROM baba WHERE codigo_baba = ?', [codigo_baba], callback);
     },

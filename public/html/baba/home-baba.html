@@ -6,6 +6,7 @@
   <title>Babysite | Área da babá</title>
   <link rel="icon" href="../../imagens/logo_do_babysite.png" type="image/png">
   <link rel="stylesheet" href="../../css/baba/baba.css">
+  <link rel="stylesheet" href="../../css/areas/agenda.css">
 </head>
 <body>
   <div class="portal-shell">
@@ -21,7 +22,8 @@
         <button class="side-link" data-screen="perfil"><span class="side-icon">◉</span>Meu perfil</button>
         <a class="side-link" href="disponibilidade/disponibilidade.html"><span class="side-icon">◷</span>Disponibilidade</a>
         <button class="side-link" data-screen="documentos"><span class="side-icon">▤</span>Certidão<span class="nav-count alert">1</span></button>
-        <button class="side-link" data-screen="entrevistas"><span class="side-icon">◫</span>Entrevistas<span class="nav-count">3</span></button>
+        <button class="side-link" data-screen="entrevistas"><span class="side-icon">◫</span>Entrevistas<span class="nav-count" id="interviewCount">0</span></button>
+        <button class="side-link" data-screen="contratos"><span class="side-icon">▣</span>Contratos<span class="nav-count" id="contractCount">0</span></button>
         <button class="side-link" data-screen="conversas"><span class="side-icon">✉</span>Conversas</button>
       </nav>
 
@@ -111,10 +113,10 @@
                 <p class="eyebrow">AÇÕES PENDENTES</p>
                 <h3>Entrevistas</h3>
               </div>
-              <span class="count-badge">0</span>
+              <span class="count-badge" id="pendingRequestCount">0</span>
             </div>
 
-            <p class="muted">Nenhuma entrevista registrada.</p>
+            <div id="requestPreview"><p class="muted">Nenhuma solicitação pendente.</p></div>
           </section>
         </div>
       </section>
@@ -171,7 +173,25 @@
           </div>
         </div>
 
-        <div class="appointment-list"><p class="muted">Nenhuma entrevista registrada.</p></div>
+        <section class="panel">
+          <div class="panel-heading"><div><p class="eyebrow">SOLICITAÇÕES</p><h3>Pedidos aguardando resposta</h3></div></div>
+          <div id="requestList"><p class="muted">Nenhuma solicitação pendente.</p></div>
+        </section>
+        <section class="panel">
+          <div class="panel-heading"><div><p class="eyebrow">AGENDA</p><h3>Entrevistas aceitas</h3></div></div>
+          <div id="interviewList"><p class="muted">Nenhuma entrevista registrada.</p></div>
+        </section>
+      </section>
+
+      <section class="screen" data-screen-content="contratos">
+        <div class="screen-heading">
+          <div>
+            <p class="eyebrow">CONTRATOS</p>
+            <h2>Contratos aceitos</h2>
+            <p class="muted">Consulte os dias, horários e datas de início das contratações confirmadas.</p>
+          </div>
+        </div>
+        <div id="contractList" class="appointment-list"><p class="muted">Nenhum contrato registrado.</p></div>
       </section>
 
       <section class="screen" data-screen-content="conversas">
@@ -191,15 +211,15 @@
                 <span class="avatar coral">--</span>
               <span>
                 <strong id="chatName">Nenhuma conversa selecionada</strong>
-                <small>As mensagens aparecerão aqui.</small>
+                <small class="chat-status">Selecione uma conversa</small>
               </span>
               <div class="chat-actions">
                 <button class="button-secondary" data-toast="Agenda enviada.">Sugerir horário</button>
               </div>
             </div>
-            <div class="messages large-messages"><p class="muted">Nenhuma mensagem registrada.</p></div>
+            <div class="messages large-messages"><p class="muted">Selecione uma conversa para ver as mensagens.</p></div>
             <form class="message-form" id="messageForm">
-              <input id="messageInput" type="text" placeholder="Mensagens indisponíveis sem conversa" autocomplete="off" disabled>
+              <input id="messageInput" type="text" placeholder="Selecione uma conversa para enviar mensagens" autocomplete="off" maxlength="4000" disabled>
               <button class="send-button" aria-label="Enviar mensagem" disabled>↑</button>
             </form>
           </div>

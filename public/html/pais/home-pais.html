@@ -6,6 +6,7 @@
   <title>Babysite | Área do responsável</title>
   <link rel="icon" href="../../imagens/logo_do_babysite.png" type="image/png">
   <link rel="stylesheet" href="../../css/areas/portal.css">
+  <link rel="stylesheet" href="../../css/areas/agenda.css">
 </head>
 <body>
   <div class="portal-shell">
@@ -19,8 +20,9 @@
       <nav class="side-nav" aria-label="Menu do responsável">
         <button class="side-link active" data-screen="inicio"><span class="side-icon">⌂</span>Início</button>
         <button class="side-link" data-screen="perfil"><span class="side-icon">◉</span>Perfil</button>
-        <button class="side-link" data-screen="conversas"><span class="side-icon">✉</span>Conversas<span class="nav-count">0</span></button>
+        <button class="side-link" data-screen="conversas"><span class="side-icon">✉</span>Conversas<span class="nav-count" id="conversationNavCount">0</span></button>
         <button class="side-link" data-screen="entrevistas"><span class="side-icon">◫</span>Entrevistas<span class="nav-count alert">0</span></button>
+        <button class="side-link" data-screen="contratos"><span class="side-icon">▣</span>Contratos<span class="nav-count">0</span></button>
         <button class="side-link" data-screen="configuracoes"><span class="side-icon">⚙</span>Configurações</button>
       </nav>
 
@@ -54,7 +56,7 @@
               <p class="eyebrow">UMA REDE DE CONFIANÇA</p>
               <h2>O cuidado certo para cada <em>família.</em></h2>
               <p>Encontre profissionais verificadas, converse com tranquilidade e combine cada detalhe antes do primeiro encontro.</p>
-              <button class="primary-button" data-screen-target="conversas">Explorar profissionais <span>→</span></button>
+              <button class="primary-button" data-scroll-target="visitorProfiles">Explorar profissionais <span>→</span></button>
             </div>
             <div class="visitor-hero-art" aria-label="Profissionais disponíveis para conversar">
               <span class="visitor-figure visitor-figure-one">LS</span>
@@ -141,7 +143,7 @@
               <p class="eyebrow">CONVERSAS</p>
               <h3>Fale com sua babá</h3>
             </div>
-            <span class="online-label">0 conversas</span>
+            <span class="online-label" id="conversationCount">0 conversas</span>
           </div>
 
           <div class="chat-shell">
@@ -152,7 +154,7 @@
                 <span class="avatar coral">--</span>
                 <span>
                   <strong id="chatName">Nenhuma conversa selecionada</strong>
-                  <small>As mensagens aparecerão aqui.</small>
+                  <small class="chat-status">Selecione uma conversa</small>
                 </span>
                 <div class="chat-actions">
                   <button class="button-secondary" data-screen-target="entrevistas">Agendar entrevista</button>
@@ -160,10 +162,10 @@
                 </div>
               </div>
 
-              <div class="messages" id="messages"><p class="muted">Nenhuma mensagem registrada.</p></div>
+              <div class="messages" id="messages"><p class="muted">Selecione uma conversa para ver as mensagens.</p></div>
 
               <form class="message-form" id="messageForm">
-                <input id="messageInput" type="text" placeholder="Mensagens indisponíveis sem conversa" autocomplete="off" disabled>
+                <input id="messageInput" type="text" placeholder="Selecione uma conversa para enviar mensagens" autocomplete="off" maxlength="4000" disabled>
                 <button class="send-button" aria-label="Enviar mensagem" disabled>↑</button>
               </form>
             </div>
@@ -188,16 +190,16 @@
                 <span class="avatar coral">--</span>
               <span>
                   <strong id="chatNameFull">Nenhuma conversa selecionada</strong>
-                  <small>As mensagens aparecerão aqui.</small>
+                  <small class="chat-status">Selecione uma conversa</small>
               </span>
               <div class="chat-actions">
                 <button class="button-secondary" data-toast="Solicitação de entrevista enviada.">Agendar</button>
                 <button class="button-primary" data-toast="Avaliação enviada.">Avaliar</button>
               </div>
             </div>
-            <div class="messages large-messages"><p class="muted">Nenhuma mensagem registrada.</p></div>
+            <div class="messages large-messages"><p class="muted">Selecione uma conversa para ver as mensagens.</p></div>
             <form class="message-form" id="messageFormFull">
-              <input id="messageInputFull" type="text" placeholder="Mensagens indisponíveis sem conversa" autocomplete="off" disabled>
+              <input id="messageInputFull" type="text" placeholder="Selecione uma conversa para enviar mensagens" autocomplete="off" maxlength="4000" disabled>
               <button class="send-button" aria-label="Enviar mensagem" disabled>↑</button>
             </form>
           </div>
@@ -211,10 +213,24 @@
             <h2>Próximos encontros</h2>
             <p class="muted">Acompanhe cada etapa da seleção e confirme a melhor disponibilidade.</p>
           </div>
-          <button class="primary-button" disabled title="Agendamento ainda não disponível">+ Agendar</button>
+          <button class="primary-button" data-screen-target="inicio">+ Encontrar babá e solicitar entrevista</button>
         </div>
 
-        <div class="appointment-list"><p class="muted">Nenhuma entrevista registrada.</p></div>
+        <section class="panel">
+          <div class="panel-heading"><div><p class="eyebrow">PENDENTES</p><h3>Aguardando resposta</h3></div></div>
+          <div id="pendingRequestList"><p class="muted">Nenhuma solicitação pendente.</p></div>
+        </section>
+        <section class="panel">
+          <div class="panel-heading"><div><p class="eyebrow">AGENDA</p><h3>Entrevistas aceitas</h3></div></div>
+          <div id="interviewList"><p class="muted">Nenhuma entrevista registrada.</p></div>
+        </section>
+      </section>
+
+      <section class="screen" data-screen-content="contratos">
+        <div class="screen-heading">
+          <div><p class="eyebrow">CONTRATOS</p><h2>Contratações aceitas</h2><p class="muted">Acompanhe as datas de início e os dias e horários combinados.</p></div>
+        </div>
+        <div id="contractList" class="appointment-list"><p class="muted">Nenhum contrato registrado.</p></div>
       </section>
 
       <section class="screen" data-screen-content="configuracoes">
