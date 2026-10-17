@@ -80,7 +80,7 @@ button { cursor:pointer; }
 .completion { color:var(--muted); font-size:12px; }
 .profile-form { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 .profile-form label { color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.7px; display:flex; flex-direction:column; gap:7px; }
-.profile-form input, .profile-form textarea { color:var(--ink); background:#fbfaf6; border:1px solid var(--line); border-radius:4px; padding:11px; outline:0; }
+.profile-form input, .profile-form textarea, .profile-form select { color:var(--ink); background:#fbfaf6; border:1px solid var(--line); border-radius:4px; padding:11px; outline:0; }
 .profile-form .wide { grid-column:1 / -1; }
 .input-prefix { display:flex; align-items:center; background:#fbfaf6; border:1px solid var(--line); border-radius:4px; padding-left:11px; color:var(--coral); font-weight:700; }
 .input-prefix input { border:0; padding-left:7px; width:100%; }

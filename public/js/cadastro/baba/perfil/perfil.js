@@ -7,7 +7,7 @@ document.getElementById('sitterProfileForm').addEventListener('submit', (event) 
   const file = document.getElementById('foto_perfil').files[0];
   account.foto_perfil = file ? file.name : `iniciais:${initials}`;
   localStorage.setItem('babysite_baba', JSON.stringify(account));
-  window.location.href = '../senha/senha.html';
+  window.location.href = '../disponibilidade/disponibilidade.html';
 });
 document.getElementById('foto_perfil').addEventListener('change', (event) => {
   const file = event.target.files[0];

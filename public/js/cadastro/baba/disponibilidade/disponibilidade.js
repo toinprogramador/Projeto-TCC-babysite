@@ -71,7 +71,10 @@ form.addEventListener('submit', async (event) => {
   try {
     const response = await fetch(`/api/babas/${encodeURIComponent(account.codigo_perfil)}/disponibilidade`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('babysite_token') || ''}`
+      },
       body: JSON.stringify({ disponibilidade })
     });
     const result = await response.json();

@@ -1,9 +1,17 @@
 const Agendamentos = require('../models/Agendamentos');
 const Baba = require('../models/Baba');
-
-const diasDaSemana = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
+const disponibilidadeValida = require('../utils/Disponibilidade');
 const formatoHora = /^([01]\d|2[0-3]):[0-5]\d$/;
 const formatosEntrevista = ['online', 'presencial'];
+const motivosAvaliacao = [
+    'Falta de pontualidade ou ausência',
+    'Não seguiu as orientações combinadas',
+    'Falta de atenção com a criança',
+    'Comunicação inadequada',
+    'Comportamento inadequado',
+    'Questão de segurança',
+    'Outro motivo'
+];
 
 function perfilComTipo(req, res, tipo) {
     if (req.sessao.perfil.tipo_usuario !== tipo) {
@@ -39,15 +47,7 @@ function mensagemValida(mensagem) {
 }
 
 function horariosValidos(horarios) {
-    if (!Array.isArray(horarios) || horarios.length < 1 || horarios.length > 7) return false;
-    const dias = new Set();
-    return horarios.every((horario) => {
-        if (!horario || !diasDaSemana.includes(horario.dia_semana) || dias.has(horario.dia_semana)) return false;
-        dias.add(horario.dia_semana);
-        return formatoHora.test(horario.hora_inicio)
-            && formatoHora.test(horario.hora_fim)
-            && horario.hora_inicio < horario.hora_fim;
-    });
+    return disponibilidadeValida(horarios);
 }
 
 async function executarComResposta(res, operacao, mensagemErro) {
@@ -81,6 +81,56 @@ const AgendamentosController = {
         executarComResposta(res, () => Agendamentos.listarContratos(req.sessao.perfil), 'Não foi possível carregar os contratos.');
     },
 
+    finalizarContrato: async (req, res) => {
+        if (!perfilComTipo(req, res, 'baba')) return;
+        if (!idValido(req.params.id)) return res.status(400).json({ erro: 'Contrato inválido.' });
+        try {
+            const resultado = await Agendamentos.finalizarContrato(
+                Number(req.params.id),
+                req.sessao.perfil.codigo_perfil
+            );
+            if (!resultado) return res.status(404).json({ erro: 'Contrato não encontrado.' });
+            if (resultado !== true) {
+                return res.status(409).json({ erro: 'Este contrato não está ativo para ser finalizado.' });
+            }
+            res.json({ mensagem: 'Serviço finalizado. O responsável já pode avaliar o contrato.' });
+        } catch (erro) {
+            console.error('Não foi possível finalizar o contrato.', erro);
+            res.status(500).json({ erro: 'Não foi possível finalizar o contrato.' });
+        }
+    },
+
+    avaliarContrato: async (req, res) => {
+        if (!perfilComTipo(req, res, 'pais')) return;
+        if (!idValido(req.params.id)) return res.status(400).json({ erro: 'Contrato inválido.' });
+        const { nota, comentario, motivos } = req.body || {};
+        if (!Number.isInteger(nota) || nota < 1 || nota > 5
+            || (comentario !== undefined && comentario !== null
+                && (typeof comentario !== 'string' || comentario.trim().length > 1000))
+            || !Array.isArray(motivos)
+            || motivos.some((motivo) => !motivosAvaliacao.includes(motivo))
+            || new Set(motivos).size !== motivos.length
+            || (nota <= 3 && motivos.length === 0)
+            || (nota >= 4 && motivos.length > 0)) {
+            return res.status(400).json({ erro: 'Informe uma nota válida. Para notas de 1 a 3, selecione pelo menos um motivo; comentários são opcionais.' });
+        }
+        try {
+            const avaliacao = await Agendamentos.avaliarContrato(
+                Number(req.params.id),
+                req.sessao.perfil.codigo_perfil,
+                nota,
+                comentario?.trim() || null,
+                motivos
+            );
+            if (avaliacao === false) return res.status(409).json({ erro: 'Este contrato já foi avaliado.' });
+            if (!avaliacao) return res.status(404).json({ erro: 'Contrato concluído não encontrado para este responsável.' });
+            res.status(201).json({ avaliacao, mensagem: 'Avaliação registrada.' });
+        } catch (erro) {
+            console.error('Não foi possível registrar a avaliação do contrato.', erro);
+            res.status(500).json({ erro: 'Não foi possível registrar a avaliação do contrato.' });
+        }
+    },
+
     solicitarEntrevista: async (req, res) => {
         if (!perfilComTipo(req, res, 'pais')) return;
         const { codigo_baba, data_entrevista, hora_entrevista, formato, mensagem } = req.body || {};
@@ -112,12 +162,14 @@ const AgendamentosController = {
 
     solicitarContrato: async (req, res) => {
         if (!perfilComTipo(req, res, 'pais')) return;
-        const { codigo_baba, data_inicio, horarios, mensagem } = req.body || {};
+        const { codigo_baba, data_inicio, data_fim, horarios, mensagem } = req.body || {};
         if (typeof codigo_baba !== 'string' || !codigo_baba.trim()
             || !dataValida(data_inicio)
+            || !dataValida(data_fim)
+            || data_fim < data_inicio
             || !horariosValidos(horarios)
             || !mensagemValida(mensagem)) {
-            return res.status(400).json({ erro: 'Informe a babá, a data de início e pelo menos um dia com horário válido.' });
+            return res.status(400).json({ erro: 'Informe a babá, um período válido e pelo menos um dia com horário válido.' });
         }
         try {
             if (!await Agendamentos.babaAtivaExiste(codigo_baba)) {
@@ -127,6 +179,7 @@ const AgendamentosController = {
                 codigo_pais: req.sessao.perfil.codigo_perfil,
                 codigo_baba,
                 data_inicio,
+                data_fim,
                 horarios,
                 mensagem: mensagem?.trim() || null
             });

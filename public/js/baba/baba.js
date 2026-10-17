@@ -56,6 +56,7 @@ async function loadProfile() {
     document.getElementById('currentUserEmailSidebar').textContent = profile.email_1;
     document.getElementById('currentUserAvatar').textContent = profile.nome.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase();
     document.getElementById('profileName').value = profile.nome;
+    await loadBabaProfile();
     const status = document.getElementById('profileStatus');
     const active = profile.status_cadastro === 'Ativa';
     status.textContent = active ? '✓ Perfil ativo' : '◉ Perfil em análise';
@@ -63,7 +64,10 @@ async function loadProfile() {
     status.classList.toggle('pending', !active);
     await loadSchedule();
     await loadConversations();
-    conversationsPoll = window.setInterval(() => loadConversations(), 5000);
+    conversationsPoll = window.setInterval(() => {
+      loadSchedule();
+      loadConversations();
+    }, 5000);
   } catch (error) {
     showToast(error.message);
   }
@@ -84,6 +88,47 @@ async function requestApi(url, options = {}) {
     throw new Error(result.erro || 'Não foi possível concluir a solicitação.');
   }
   return response.status === 204 ? null : response.json();
+}
+
+async function loadBabaProfile() {
+  try {
+    const profile = await requestApi(`/api/babas/${encodeURIComponent(currentProfile.codigo_perfil)}/perfil`);
+    document.getElementById('profileRateInput').value = profile.tarifa_hora ?? '';
+    document.getElementById('profileStateInput').value = profile.estado || '';
+    document.getElementById('profileCityInput').value = profile.municipio || '';
+    document.getElementById('currentRate').textContent = profile.tarifa_hora == null
+      ? '--'
+      : `R$ ${Number(profile.tarifa_hora).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+    document.getElementById('currentRateStatus').textContent = profile.tarifa_hora == null
+      ? 'Tarifa não cadastrada'
+      : 'Valor por hora';
+  } catch (error) {
+    showToast(error.message);
+  }
+}
+
+async function saveBabaProfile(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const submitButton = form.querySelector('[type="submit"]');
+  const tarifaValue = document.getElementById('profileRateInput').value;
+  submitButton.disabled = true;
+  try {
+    const result = await requestApi(`/api/babas/${encodeURIComponent(currentProfile.codigo_perfil)}/perfil`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        tarifa_hora: tarifaValue === '' ? null : Number(tarifaValue),
+        estado: document.getElementById('profileStateInput').value,
+        municipio: document.getElementById('profileCityInput').value
+      })
+    });
+    showToast(result.mensagem);
+    await loadBabaProfile();
+  } catch (error) {
+    showToast(error.message);
+  } finally {
+    submitButton.disabled = false;
+  }
 }
 
 function formatMessageTime(date) {
@@ -193,7 +238,7 @@ function renderRequests(requests) {
     const title = request.tipo === 'entrevista' ? 'Entrevista' : 'Contratação';
     const description = request.tipo === 'entrevista'
       ? `${displayDate(request.data_entrevista)} às ${escapeHTML(request.hora_entrevista)} · ${escapeHTML(request.formato)}`
-      : `Início em ${displayDate(request.data_inicio)} · ${request.horarios.map((item) => `${escapeHTML(item.dia_semana)} ${escapeHTML(item.hora_inicio)}–${escapeHTML(item.hora_fim)}`).join(', ')}`;
+      : `${displayDate(request.data_inicio)} a ${request.data_fim ? displayDate(request.data_fim) : 'fim não informado'} · ${request.horarios.map((item) => `${escapeHTML(item.dia_semana)} ${escapeHTML(item.hora_inicio)}–${escapeHTML(item.hora_fim)}`).join(', ')}`;
     return `<article class="request-item">
       <span class="avatar coral">${escapeHTML(request.nome_pais.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase())}</span>
       <div><strong>${title} · ${escapeHTML(request.nome_pais)}</strong><small>${description}</small>${request.mensagem ? `<span>${escapeHTML(request.mensagem)}</span>` : ''}</div>
@@ -220,9 +265,13 @@ function renderInterviews(interviews) {
 function renderContracts(contracts) {
   const target = document.getElementById('contractList');
   target.innerHTML = contracts.length ? contracts.map((item) => `
-    <article class="appointment"><div><strong>${escapeHTML(item.nome_pais)} · início em ${displayDate(item.data_inicio)}</strong>
+    <article class="appointment"><div><strong>${escapeHTML(item.nome_pais)} · ${displayDate(item.data_inicio)} a ${item.data_fim ? displayDate(item.data_fim) : 'fim não informado'}</strong>
     <small>${item.horarios.map((horario) => `${escapeHTML(horario.dia_semana)} ${escapeHTML(horario.hora_inicio)}–${escapeHTML(horario.hora_fim)}`).join(' · ')}</small>
-    <small>Status: ${escapeHTML(item.status)}</small></div></article>`).join('')
+    <small>Status: ${escapeHTML(item.status)}</small>
+    ${item.avaliacao_id ? `<small>Avaliação recebida: ${item.nota}/5${item.motivos?.length ? ` · Motivos: ${item.motivos.map(escapeHTML).join(', ')}` : ''}${item.comentario ? ` · ${escapeHTML(item.comentario)}` : ''}</small>` : ''}
+    </div>
+    ${item.status === 'Ativo'
+      ? `<button class="primary-button" type="button" data-finish-contract="${escapeHTML(item.contrato_id)}">Finalizar serviço</button>` : ''}</article>`).join('')
     : '<p class="muted">Nenhum contrato aceito registrado.</p>';
 }
 
@@ -281,6 +330,21 @@ function bindActions() {
     }
   });
 
+  document.getElementById('contractList').addEventListener('click', async (event) => {
+    const button = event.target.closest('[data-finish-contract]');
+    if (!button) return;
+    if (!window.confirm('Confirma que o serviço deste contrato foi concluído?')) return;
+    button.disabled = true;
+    try {
+      const resultado = await requestApi(`/api/contratos/${button.dataset.finishContract}/finalizar`, { method: 'POST' });
+      showToast(resultado.mensagem);
+      await loadSchedule();
+    } catch (error) {
+      button.disabled = false;
+      showToast(error.message);
+    }
+  });
+
   document.querySelector('.conversation-list').addEventListener('click', (event) => {
     const button = event.target.closest('[data-conversation-id]');
     if (button) selectConversation(button.dataset.conversationId);
@@ -291,10 +355,7 @@ function bindActions() {
     showToast('Perfil profissional atualizado.');
   });
 
-  document.getElementById('profileEditForm').addEventListener('submit', (event) => {
-    event.preventDefault();
-    showToast('Dados do perfil salvos.');
-  });
+  document.getElementById('profileEditForm').addEventListener('submit', saveBabaProfile);
 
   document.getElementById('messageForm').addEventListener('submit', (event) => {
     event.preventDefault();

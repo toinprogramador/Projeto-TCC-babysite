@@ -73,10 +73,19 @@
           </div>
 
           <div class="visitor-filters">
-            <input id="visitorSearch" type="search" placeholder="Nome da profissional">
-            <select disabled title="Localização ainda não cadastrada"><option>Localização não cadastrada</option></select>
-            <select disabled title="Especialidades ainda não cadastradas"><option>Especialidade não cadastrada</option></select>
-            <select disabled title="Tarifa ainda não cadastrada"><option>Tarifa não cadastrada</option></select>
+            <label class="visitor-search-field">Nome da profissional<input id="visitorSearch" type="search" placeholder="Buscar por nome"></label>
+            <label>Estado<select id="visitorStateFilter"><option value="">Todos os estados</option></select></label>
+            <label>Município<select id="visitorCityFilter" disabled><option value="">Todos os municípios</option></select></label>
+            <label>Tarifa por hora<input id="visitorRateFilter" type="number" min="1" step="0.01" placeholder="Valor máximo (R$)"></label>
+            <fieldset class="visitor-availability-filter">
+              <legend>Disponibilidade · escolha um ou mais dias</legend>
+              <label><input type="checkbox" name="visitorAvailabilityFilter" value="segunda"> Segunda-feira</label>
+              <label><input type="checkbox" name="visitorAvailabilityFilter" value="terca"> Terça-feira</label>
+              <label><input type="checkbox" name="visitorAvailabilityFilter" value="quarta"> Quarta-feira</label>
+              <label><input type="checkbox" name="visitorAvailabilityFilter" value="quinta"> Quinta-feira</label>
+              <label><input type="checkbox" name="visitorAvailabilityFilter" value="sexta"> Sexta-feira</label>
+              <label><input type="checkbox" name="visitorAvailabilityFilter" value="sabado"> Sábado</label>
+            </fieldset>
           </div>
 
           <div class="visitor-profiles" id="visitorProfiles"></div>
@@ -157,8 +166,7 @@
                   <small class="chat-status">Selecione uma conversa</small>
                 </span>
                 <div class="chat-actions">
-                  <button class="button-secondary" data-screen-target="entrevistas">Agendar entrevista</button>
-                  <button class="button-primary" data-toast="Avaliação registrada com sucesso.">Avaliar</button>
+                  <button class="button-secondary" data-open-interview-request disabled>Agendar entrevista</button>
                 </div>
               </div>
 
@@ -187,14 +195,13 @@
 
           <div class="chat-window">
             <div class="chat-top">
-                <span class="avatar coral">--</span>
+              <span class="avatar coral">--</span>
               <span>
-                  <strong id="chatNameFull">Nenhuma conversa selecionada</strong>
-                  <small class="chat-status">Selecione uma conversa</small>
+                <strong id="chatNameFull">Nenhuma conversa selecionada</strong>
+                <small class="chat-status">Selecione uma conversa</small>
               </span>
               <div class="chat-actions">
-                <button class="button-secondary" data-toast="Solicitação de entrevista enviada.">Agendar</button>
-                <button class="button-primary" data-toast="Avaliação enviada.">Avaliar</button>
+                <button class="button-secondary" data-open-interview-request disabled>Agendar entrevista</button>
               </div>
             </div>
             <div class="messages large-messages"><p class="muted">Selecione uma conversa para ver as mensagens.</p></div>
@@ -253,6 +260,67 @@
   </div>
 
   <div class="toast" id="toast" role="status"></div>
+
+  <div class="dialog-backdrop" id="interviewRequestDialog" hidden>
+    <section class="dialog-panel" role="dialog" aria-modal="true" aria-labelledby="interviewDialogTitle">
+      <button class="dialog-close" type="button" data-close-interview-request aria-label="Fechar">×</button>
+      <p class="eyebrow">SOLICITAÇÃO PARA <span id="interviewBabysitterName">A BABÁ</span></p>
+      <h2 id="interviewDialogTitle">Agendar entrevista</h2>
+      <p class="muted">A solicitação será enviada à babá. A entrevista só será adicionada à agenda se ela aceitar.</p>
+      <form id="chatInterviewRequestForm" class="dialog-form">
+        <label>Data da entrevista<input name="data_entrevista" type="date" required></label>
+        <label>Horário<input name="hora_entrevista" type="time" required></label>
+        <label>Formato
+          <select name="formato" required>
+            <option value="online">Online</option>
+            <option value="presencial">Presencial</option>
+          </select>
+        </label>
+        <label>Mensagem (opcional)<textarea name="mensagem" rows="3" maxlength="500"></textarea></label>
+        <div class="dialog-actions">
+          <button class="secondary-button" type="button" data-close-interview-request>Cancelar</button>
+          <button class="primary-button" type="submit">Enviar solicitação</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="dialog-backdrop" id="contractReviewDialog" hidden>
+    <section class="dialog-panel" role="dialog" aria-modal="true" aria-labelledby="contractReviewTitle">
+      <button class="dialog-close" type="button" data-close-contract-review aria-label="Fechar">×</button>
+      <p class="eyebrow">AVALIAÇÃO DO SERVIÇO</p>
+      <h2 id="contractReviewTitle">O que você achou do serviço?</h2>
+      <p class="muted">A babá receberá sua avaliação. Notas de 1 a 3 também serão encaminhadas anonimamente à administração como denúncia.</p>
+      <form id="contractReviewForm" class="dialog-form">
+        <label>Nota
+          <select name="nota" required>
+            <option value="">Selecione de 1 a 5 estrelas</option>
+            <option value="5">5 estrelas — excelente</option>
+            <option value="4">4 estrelas — muito bom</option>
+            <option value="3">3 estrelas — bom</option>
+            <option value="2">2 estrelas — regular</option>
+            <option value="1">1 estrela — ruim</option>
+          </select>
+        </label>
+        <fieldset id="reviewReasons" class="review-reasons" hidden>
+          <legend>Quais motivos explicam sua nota? Selecione ao menos um.</legend>
+          <label><input type="checkbox" name="motivos" value="Falta de pontualidade ou ausência"> Falta de pontualidade ou ausência</label>
+          <label><input type="checkbox" name="motivos" value="Não seguiu as orientações combinadas"> Não seguiu as orientações combinadas</label>
+          <label><input type="checkbox" name="motivos" value="Falta de atenção com a criança"> Falta de atenção com a criança</label>
+          <label><input type="checkbox" name="motivos" value="Comunicação inadequada"> Comunicação inadequada</label>
+          <label><input type="checkbox" name="motivos" value="Comportamento inadequado"> Comportamento inadequado</label>
+          <label><input type="checkbox" name="motivos" value="Questão de segurança"> Questão de segurança</label>
+          <label><input type="checkbox" name="motivos" value="Outro motivo"> Outro motivo</label>
+          <small id="reviewReasonsHint"></small>
+        </fieldset>
+        <label>Comentário (opcional)<textarea name="comentario" rows="4" maxlength="1000"></textarea></label>
+        <div class="dialog-actions">
+          <button class="secondary-button" type="button" data-close-contract-review>Cancelar</button>
+          <button class="primary-button" type="submit">Enviar avaliação</button>
+        </div>
+      </form>
+    </section>
+  </div>
 
   <script src="../../js/pais/pais.js"></script>
 </body>

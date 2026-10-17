@@ -23,7 +23,7 @@ form.addEventListener('submit', async (event) => {
     delete account.senha;
     localStorage.setItem('babysite_pais', JSON.stringify(account));
     localStorage.setItem('babysite_token', result.token);
-    window.location.href = '../../../../pais/home-pais.html';
+    window.location.href = '../../../pais/home-pais.html';
   } catch (requestError) {
     error.textContent = requestError.message || 'Não foi possível conectar ao servidor.';
     submitButton.disabled = false;

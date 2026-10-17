@@ -1,17 +1,70 @@
 const Baba = require('../models/Baba');
-
-const diasDaSemana = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
-const formatoHora = /^([01]\d|2[0-3]):[0-5]\d$/;
+const disponibilidadeValida = require('../utils/Disponibilidade');
+const estadosBrasileiros = new Set([
+    'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS',
+    'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC',
+    'SP', 'SE', 'TO', 'ESTADO_1', 'ESTADO_2', 'ESTADO_3', 'ESTADO_4', 'ESTADO_5'
+]);
 
 const babaController = {
     // GET /api/babas
-    listarAtivas: (req, res) => {
-        Baba.listarAtivas((err, rows) => {
-            if (err) {
-                return res.status(500).json({ erro: 'Erro ao buscar listagem de babás.' });
-            }
-            res.json(rows);
-        });
+    listarAtivas: async (req, res) => {
+        try {
+            res.json(await Baba.listarAtivas());
+        } catch (erro) {
+            console.error('Erro ao buscar listagem de babás:', erro.message);
+            res.status(500).json({ erro: 'Erro ao buscar listagem de babás.' });
+        }
+    },
+
+    buscarMeuPerfil: async (req, res) => {
+        if (req.sessao.perfil.tipo_usuario !== 'baba'
+            || req.sessao.perfil.codigo_perfil !== req.params.codigo) {
+            return res.status(403).json({ erro: 'Você só pode consultar seu próprio perfil de babá.' });
+        }
+        try {
+            const perfil = await Baba.buscarMeuPerfil(req.params.codigo);
+            if (!perfil) return res.status(404).json({ erro: 'Perfil de babá não encontrado.' });
+            res.json(perfil);
+        } catch (erro) {
+            console.error('Não foi possível carregar o perfil da babá:', erro.message);
+            res.status(500).json({ erro: 'Não foi possível carregar o perfil.' });
+        }
+    },
+
+    atualizarPerfilPublico: async (req, res) => {
+        if (req.sessao.perfil.tipo_usuario !== 'baba'
+            || req.sessao.perfil.codigo_perfil !== req.params.codigo) {
+            return res.status(403).json({ erro: 'Você só pode editar seu próprio perfil de babá.' });
+        }
+
+        const { tarifa_hora, estado, municipio } = req.body || {};
+        if ((tarifa_hora !== null && typeof tarifa_hora !== 'number')
+            || (estado !== undefined && estado !== null && typeof estado !== 'string')
+            || (municipio !== undefined && municipio !== null && typeof municipio !== 'string')) {
+            return res.status(400).json({ erro: 'Confira o formato da tarifa, estado e município.' });
+        }
+        const tarifa = tarifa_hora === null || tarifa_hora === '' ? null : Number(tarifa_hora);
+        const estadoNormalizado = typeof estado === 'string' ? estado.trim().toUpperCase() : '';
+        const municipioNormalizado = typeof municipio === 'string' ? municipio.trim() : '';
+        const localizacaoInformada = estadoNormalizado || municipioNormalizado;
+        if ((tarifa !== null && (!Number.isFinite(tarifa) || tarifa <= 0 || tarifa > 100000))
+            || (localizacaoInformada && (!estadosBrasileiros.has(estadoNormalizado)
+                || !municipioNormalizado || municipioNormalizado.length > 100))) {
+            return res.status(400).json({ erro: 'Informe uma tarifa válida e, se cadastrar localização, um estado e município válidos.' });
+        }
+
+        try {
+            await Baba.atualizarPerfilPublico(req.params.codigo, {
+                tarifa_hora: tarifa,
+                estado: localizacaoInformada ? estadoNormalizado : null,
+                municipio: localizacaoInformada ? municipioNormalizado : null
+            });
+            res.json({ mensagem: 'Perfil atualizado com sucesso.' });
+        } catch (erro) {
+            console.error('Não foi possível atualizar o perfil público da babá:', erro.message);
+            res.status(500).json({ erro: 'Não foi possível atualizar o perfil.' });
+        }
     },
 
     buscarDisponibilidade: (req, res) => {
@@ -27,23 +80,13 @@ const babaController = {
     },
 
     salvarDisponibilidade: (req, res) => {
-        const disponibilidade = req.body?.disponibilidade;
-        if (!Array.isArray(disponibilidade) || disponibilidade.length > 7) {
-            return res.status(400).json({ erro: 'Informe os dias e horários de disponibilidade.' });
+        if (req.sessao.perfil.tipo_usuario !== 'baba'
+            || req.sessao.perfil.codigo_perfil !== req.params.codigo) {
+            return res.status(403).json({ erro: 'Você só pode alterar sua própria disponibilidade.' });
         }
-
-        const diasInformados = new Set();
-        const horariosValidos = disponibilidade.every((horario) => {
-            if (!horario || !diasDaSemana.includes(horario.dia_semana) || diasInformados.has(horario.dia_semana)) {
-                return false;
-            }
-            diasInformados.add(horario.dia_semana);
-            return formatoHora.test(horario.hora_inicio)
-                && formatoHora.test(horario.hora_fim)
-                && horario.hora_inicio < horario.hora_fim;
-        });
-        if (!horariosValidos) {
-            return res.status(400).json({ erro: 'Confira os dias e horários informados.' });
+        const disponibilidade = req.body?.disponibilidade;
+        if (!disponibilidadeValida(disponibilidade)) {
+            return res.status(400).json({ erro: 'Informe os dias e horários de disponibilidade.' });
         }
 
         Baba.buscarPorCodigo(req.params.codigo, async (erro, baba) => {

@@ -7,7 +7,7 @@ const adminApp = express();
 // Middleware para processar JSON
 adminApp.use(express.json());
 
-adminApp.get('/', (req, res) => res.redirect('/html/admin/home-admin.html'));
+adminApp.get('/', (req, res) => res.redirect('/html/admin/login-admin.html'));
 
 // O painel fica separado em private; logos e links públicos vêm de public.
 adminApp.use(express.static(path.join(__dirname, '../private')));

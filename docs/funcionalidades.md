@@ -31,8 +31,9 @@ As áreas de Pais, Babá e Admin seguem o mesmo modelo de interface:
 
 - Apresentar a proposta do Babysite.
 - Listar babás disponíveis.
-- Pesquisar por nome, cidade e experiência.
-- Filtrar por estado, tipo de cuidado e tarifa.
+- Pesquisar por nome.
+- Filtrar por estado, município e tarifa máxima por hora.
+- Combinar vários dias de disponibilidade; cada dia selecionado precisa estar disponível na babá, de segunda a sábado.
 - Mostrar avaliação, disponibilidade e situação da verificação.
 - Ao tentar abrir detalhes ou agendar sem autenticação, encaminhar para login/cadastro.
 
@@ -56,7 +57,7 @@ As áreas de Pais, Babá e Admin seguem o mesmo modelo de interface:
 
 - O responsável envia uma solicitação de entrevista com data, horário e formato.
 - A solicitação fica pendente para a babá; quando aceita, é removida das solicitações e cria um compromisso em Entrevistas para os dois perfis. Quando recusada, é removida sem criar entrevista.
-- O responsável envia uma solicitação de contratação com data de início e dias/horários de trabalho.
+- O responsável envia uma solicitação de contratação com período de início e fim, além dos dias e horários semanais em uma única solicitação.
 - A solicitação fica pendente para a babá; quando aceita, é removida das solicitações e cria um contrato para os dois perfis. Quando recusada, é removida sem criar contrato.
 - Consultar solicitações pendentes, entrevistas aceitas e contratos aceitos nas áreas de Pais e Babá.
 
@@ -66,15 +67,19 @@ As áreas de Pais, Babá e Admin seguem o mesmo modelo de interface:
 - Enviar e receber mensagens persistidas no banco.
 - Atualizar mensagens novas automaticamente enquanto a tela está aberta.
 - Indicador de presença e mensagens não lidas.
-- Botão para agendar entrevista.
-- Botão para avaliar o atendimento com estrelas e comentário.
+- Botão **Agendar entrevista** abre um formulário central com data, horário, formato e mensagem opcional.
+- A solicitação só vira entrevista na agenda se a babá aceitar; enquanto isso permanece pendente e pode ser recusada.
 
 ### Entrevistas e agendamentos
 
 - Visualizar entrevistas aceitas com data, horário, formato e status.
 - Cancelar ou solicitar novo horário.
 - Receber confirmação da babá.
-- Consultar contratos aceitos, com data de início e horários semanais.
+- Consultar contratos aceitos, com período de início e fim e horários semanais.
+- A babá pode finalizar o serviço de um contrato ativo quando o trabalho terminar.
+- Após a conclusão, o responsável pode avaliar o contrato uma única vez, com nota de 1 a 5.
+- Em avaliações de 4 ou 5, o comentário é opcional e é enviado à babá. Notas de 1 a 3 exigem ao menos um motivo selecionado; comentário continua opcional e os motivos e comentário são encaminhados à babá e à administração como denúncia anônima.
+- A administração acompanha as denúncias de avaliação no painel; a listagem inclui nome da babá, nota, motivos, comentário e data, sem dados do responsável.
 
 ## Home Babá
 
@@ -87,8 +92,11 @@ As áreas de Pais, Babá e Admin seguem o mesmo modelo de interface:
 
 - Editar apresentação profissional.
 - Definir tarifa por hora.
+- Cadastrar município e estado para aparecer nos filtros de localização.
 - Informar experiência e disponibilidade.
-- Cadastrar e alterar dias e horários habituais de trabalho. A disponibilidade é uma relação de horários por dia da semana associada à babá; não representa solicitação nem contrato.
+- Cadastrar e alterar dias e horários habituais de trabalho, de segunda-feira a sábado. A disponibilidade é uma relação de horários por dia da semana associada à babá; não representa solicitação nem contrato.
+- Cadastro da babá: dados principais, certidão, estado e município, perfil, disponibilidade, tarifa por hora e senha. Somente estado e município são coletados para a localização.
+- Definir tarifa por hora com valores sugeridos ou valor personalizado.
 - Controlar quais informações aparecem para as famílias.
 
 ### Certidão de antecedentes
@@ -102,13 +110,15 @@ As áreas de Pais, Babá e Admin seguem o mesmo modelo de interface:
 
 - Receber solicitações de entrevista com data, horário e formato.
 - Aceitar para criar o registro permanente na agenda de entrevistas ou recusar para remover a solicitação sem criar compromisso.
+- Atualizar solicitações recebidas automaticamente enquanto a área está aberta.
 - Consultar entrevistas aceitas.
 
 ### Contratos
 
-- Receber solicitações com data de início e dias/horários semanais propostos pelo responsável.
+- Receber solicitações com período de início e fim e dias/horários semanais propostos pelo responsável.
 - Aceitar para criar o contrato permanente ou recusar para remover a solicitação sem criar contrato.
 - Consultar contratos aceitos e seus horários.
+- Finalizar o serviço ao concluir o trabalho; essa ação libera a avaliação do contrato pelo responsável.
 
 ### Conversas
 
@@ -167,4 +177,4 @@ As áreas de Pais, Babá e Admin seguem o mesmo modelo de interface:
 
 ## Próximas integrações
 
-A disponibilidade semanal, solicitações de entrevista e contratação, registros aceitos e conversas/mensagens estão conectados à API e ao banco de dados. Documentos, avaliações, relatórios e denúncias ainda precisam de integração completa; as funções do JavaScript devem permanecer separadas da marcação para facilitar essa evolução.
+A disponibilidade semanal, solicitações de entrevista e contratação, registros aceitos, conversas/mensagens e avaliações vinculadas a contratos concluídos estão conectados à API e ao banco de dados. Denúncias geradas por avaliações de 1 a 3 estrelas são persistidas com seus motivos e exibidas anonimamente no painel administrativo. Documentos e relatórios ainda precisam de integração completa; as funções do JavaScript devem permanecer separadas da marcação para facilitar essa evolução.

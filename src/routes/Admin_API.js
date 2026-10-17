@@ -2,12 +2,17 @@ const express = require('express');
 const router = express.Router();
 
 const adminController = require('../controllers/Admin_Controller');
-const usuarioController = require('../controllers/Usuario_Controller');
+const Sessoes = require('../middleware/Sessoes');
 
-// Consultar todos os usuários cadastrados no sistema
-router.get('/usuarios', usuarioController.listar);
+router.post('/sessao', adminController.entrar);
+router.get('/sessao', Sessoes.exigirAutenticacao, Sessoes.exigirAdministrador, adminController.perfilAtual);
+router.use(Sessoes.exigirAutenticacao, Sessoes.exigirAdministrador);
 
-// Alterar o status de cadastro de uma babá (Ativa, Pendente, Bloqueada)
+router.get('/resumo', adminController.resumo);
+router.get('/usuarios', adminController.listarUsuarios);
+router.get('/denuncias/avaliacoes', adminController.listarDenunciasAvaliacao);
 router.put('/babas/:codigo/status', adminController.alterarStatusBaba);
+router.delete('/babas/:codigo', adminController.excluirBaba);
+router.delete('/sessao', Sessoes.encerrar);
 
 module.exports = router;

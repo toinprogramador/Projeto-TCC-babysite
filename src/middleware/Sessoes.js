@@ -21,10 +21,17 @@ function exigirAutenticacao(req, res, next) {
     next();
 }
 
+function exigirAdministrador(req, res, next) {
+    if (req.sessao.perfil.tipo_usuario !== 'admin') {
+        return res.status(403).json({ erro: 'Acesso restrito a administradores.' });
+    }
+    next();
+}
+
 function encerrar(req, res) {
     const token = req.get('Authorization')?.replace(/^Bearer\s+/i, '');
     if (token) sessoes.delete(token);
     res.status(204).end();
 }
 
-module.exports = { criar, exigirAutenticacao, encerrar };
+module.exports = { criar, exigirAutenticacao, exigirAdministrador, encerrar };

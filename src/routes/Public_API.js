@@ -26,8 +26,10 @@ router.post('/responsaveis', responsaveisController.cadastrar);
 // Rotas de Babás (Apenas ativas no site público)
 router.get('/babas', babaController.listarAtivas);
 router.get('/babas/:codigo', agendamentosController.buscarPerfilBaba);
+router.get('/babas/:codigo/perfil', Sessoes.exigirAutenticacao, babaController.buscarMeuPerfil);
 router.get('/babas/:codigo/disponibilidade', babaController.buscarDisponibilidade);
-router.put('/babas/:codigo/disponibilidade', babaController.salvarDisponibilidade);
+router.put('/babas/:codigo/perfil', Sessoes.exigirAutenticacao, babaController.atualizarPerfilPublico);
+router.put('/babas/:codigo/disponibilidade', Sessoes.exigirAutenticacao, babaController.salvarDisponibilidade);
 
 // Solicitações temporárias e compromissos aceitos
 router.get('/solicitacoes/pendentes', Sessoes.exigirAutenticacao, agendamentosController.listarSolicitacoes);
@@ -39,6 +41,8 @@ router.delete('/solicitacoes/entrevistas/:id', Sessoes.exigirAutenticacao, agend
 router.delete('/solicitacoes/contratos/:id', Sessoes.exigirAutenticacao, agendamentosController.recusarContrato);
 router.get('/entrevistas', Sessoes.exigirAutenticacao, agendamentosController.listarEntrevistas);
 router.get('/contratos', Sessoes.exigirAutenticacao, agendamentosController.listarContratos);
+router.post('/contratos/:id/finalizar', Sessoes.exigirAutenticacao, agendamentosController.finalizarContrato);
+router.post('/contratos/:id/avaliacao', Sessoes.exigirAutenticacao, agendamentosController.avaliarContrato);
 router.get('/conversas', Sessoes.exigirAutenticacao, conversasController.listar);
 router.post('/conversas', Sessoes.exigirAutenticacao, conversasController.iniciar);
 router.get('/conversas/:id/mensagens', Sessoes.exigirAutenticacao, conversasController.listarMensagens);

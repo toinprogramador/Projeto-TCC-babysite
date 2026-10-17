@@ -27,17 +27,17 @@ const usuarioController = {
 
     // POST /api/usuarios
     cadastrar: (req, res) => {
-        const dados = req.body;
+        const dados = req.body || {};
 
-        if (!dados.usuario_codigo || !dados.cpf || !dados.nome) {
+        if (!dados.cpf || !dados.nome) {
             return res.status(400).json({ erro: 'Campos obrigatórios ausentes.' });
         }
 
-        Usuario.criar(dados, (err) => {
+        Usuario.criar(dados, (err, usuarioCodigo) => {
             if (err) {
                 return res.status(500).json({ erro: 'Erro ao cadastrar usuário: ' + err.message });
             }
-            res.status(201).json({ mensagem: 'Usuário cadastrado com sucesso!' });
+            res.status(201).json({ mensagem: 'Usuário cadastrado com sucesso!', usuario_codigo: usuarioCodigo });
         });
     }
 };

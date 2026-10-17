@@ -39,19 +39,11 @@ function transacionar(operacao) {
     return atual;
 }
 
-async function anexarHorarios(registros, tabela, chave, campoId) {
-    for (const registro of registros) {
-        registro.horarios = await consultar(
-            `SELECT dia_semana, hora_inicio, hora_fim
-             FROM ${tabela} WHERE ${campoId} = ?
-             ORDER BY CASE dia_semana
-                 WHEN 'segunda' THEN 1 WHEN 'terca' THEN 2 WHEN 'quarta' THEN 3
-                 WHEN 'quinta' THEN 4 WHEN 'sexta' THEN 5 WHEN 'sabado' THEN 6
-                 WHEN 'domingo' THEN 7 END`,
-            [registro[chave]]
-        );
-    }
-    return registros;
+function anexarHorariosJson(registros) {
+    return registros.map((registro) => ({
+        ...registro,
+        horarios: JSON.parse(registro.horarios_json)
+    }));
 }
 
 const Agendamentos = {
@@ -67,7 +59,7 @@ const Agendamentos = {
                                JOIN baba b ON b.codigo_baba = s.codigo_baba
                                WHERE s.${filtro} = ? ORDER BY s.criada_em`;
         const contratoSql = `SELECT s.solicitacao_id, s.codigo_pais, s.codigo_baba,
-                                    s.data_inicio, s.mensagem, s.criada_em,
+                                    s.data_inicio, s.data_fim, s.horarios_json, s.mensagem, s.criada_em,
                                     p.nome AS nome_pais, b.nome AS nome_baba, 'contrato' AS tipo
                              FROM solicitacao_contrato s
                              JOIN pais p ON p.codigo_pais = s.codigo_pais
@@ -77,8 +69,8 @@ const Agendamentos = {
             consultar(entrevistaSql, [perfil.codigo_perfil]),
             consultar(contratoSql, [perfil.codigo_perfil])
         ]);
-        await anexarHorarios(contratos, 'solicitacao_contrato_horario', 'solicitacao_id', 'solicitacao_id');
-        return [...entrevistas, ...contratos].sort((a, b) => a.criada_em.localeCompare(b.criada_em));
+        const contratosComHorarios = anexarHorariosJson(contratos);
+        return [...entrevistas, ...contratosComHorarios].sort((a, b) => a.criada_em.localeCompare(b.criada_em));
     },
 
     listarEntrevistas: async (perfil) => {
@@ -98,17 +90,59 @@ const Agendamentos = {
     listarContratos: async (perfil) => {
         const filtro = perfil.tipo_usuario === 'baba' ? 'c.codigo_baba' : 'c.codigo_pais';
         const contratos = await consultar(
-            `SELECT c.contrato_id, c.codigo_pais, c.codigo_baba, c.data_inicio,
-                    c.mensagem, c.status, c.criado_em, p.nome AS nome_pais,
-                    b.nome AS nome_baba
+            `SELECT c.contrato_id, c.codigo_pais, c.codigo_baba, c.data_inicio, c.data_fim,
+                    c.horarios_json, c.mensagem, c.status, c.criado_em, p.nome AS nome_pais,
+                    b.nome AS nome_baba, a.avaliacao_id, a.nota, a.comentario,
+                    a.motivos_json,
+                    a.criada_em AS avaliado_em
              FROM contrato c
              JOIN pais p ON p.codigo_pais = c.codigo_pais
              JOIN baba b ON b.codigo_baba = c.codigo_baba
+             LEFT JOIN avaliacao_contrato a ON a.contrato_id = c.contrato_id
              WHERE ${filtro} = ? ORDER BY c.data_inicio`,
             [perfil.codigo_perfil]
         );
-        return anexarHorarios(contratos, 'contrato_horario', 'contrato_id', 'contrato_id');
+        return anexarHorariosJson(contratos).map((contrato) => ({
+            ...contrato,
+            motivos: contrato.avaliacao_id ? JSON.parse(contrato.motivos_json) : []
+        }));
     },
+
+    finalizarContrato: async (contratoId, codigoBaba) => {
+        const resultado = await executar(
+            `UPDATE contrato SET status = 'Concluído'
+             WHERE contrato_id = ? AND codigo_baba = ? AND status = 'Ativo'`,
+            [contratoId, codigoBaba]
+        );
+        if (resultado.changes) return true;
+        return obter(
+            'SELECT contrato_id, status FROM contrato WHERE contrato_id = ? AND codigo_baba = ?',
+            [contratoId, codigoBaba]
+        );
+    },
+
+    avaliarContrato: (contratoId, codigoPais, nota, comentario, motivos) => transacionar(async () => {
+        const contrato = await obter(
+            `SELECT contrato_id, codigo_pais, codigo_baba FROM contrato
+             WHERE contrato_id = ? AND codigo_pais = ? AND status = 'Concluído'`,
+            [contratoId, codigoPais]
+        );
+        if (!contrato) return null;
+        const resultado = await executar(
+            `INSERT INTO avaliacao_contrato
+             (contrato_id, codigo_pais, codigo_baba, nota, comentario, motivos_json)
+             VALUES (?, ?, ?, ?, ?, ?)
+             ON CONFLICT (contrato_id) DO NOTHING`,
+            [contratoId, codigoPais, contrato.codigo_baba, nota, comentario, JSON.stringify(motivos)]
+        );
+        if (!resultado.changes) return false;
+
+        return obter(
+            `SELECT avaliacao_id, contrato_id, nota, comentario, motivos_json, criada_em
+             FROM avaliacao_contrato WHERE contrato_id = ?`,
+            [contratoId]
+        ).then((avaliacao) => ({ ...avaliacao, motivos: JSON.parse(avaliacao.motivos_json) }));
+    }),
 
     criarSolicitacaoEntrevista: async (dados) => {
         const resultado = await executar(
@@ -122,17 +156,14 @@ const Agendamentos = {
 
     criarSolicitacaoContrato: (dados) => transacionar(async () => {
         const resultado = await executar(
-            `INSERT INTO solicitacao_contrato (codigo_pais, codigo_baba, data_inicio, mensagem)
-             VALUES (?, ?, ?, ?)`,
-            [dados.codigo_pais, dados.codigo_baba, dados.data_inicio, dados.mensagem]
+            `INSERT INTO solicitacao_contrato
+             (codigo_pais, codigo_baba, data_inicio, data_fim, horarios_json, mensagem)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+                dados.codigo_pais, dados.codigo_baba, dados.data_inicio, dados.data_fim,
+                JSON.stringify(dados.horarios), dados.mensagem
+            ]
         );
-        for (const horario of dados.horarios) {
-            await executar(
-                `INSERT INTO solicitacao_contrato_horario
-                 (solicitacao_id, dia_semana, hora_inicio, hora_fim) VALUES (?, ?, ?, ?)`,
-                [resultado.lastID, horario.dia_semana, horario.hora_inicio, horario.hora_fim]
-            );
-        }
         return resultado.lastID;
     }),
 
@@ -159,20 +190,15 @@ const Agendamentos = {
             [solicitacaoId, codigoBaba]
         );
         if (!solicitacao) return null;
-        const horarios = await consultar(
-            'SELECT dia_semana, hora_inicio, hora_fim FROM solicitacao_contrato_horario WHERE solicitacao_id = ?',
-            [solicitacaoId]
-        );
         const resultado = await executar(
-            'INSERT INTO contrato (codigo_pais, codigo_baba, data_inicio, mensagem) VALUES (?, ?, ?, ?)',
-            [solicitacao.codigo_pais, solicitacao.codigo_baba, solicitacao.data_inicio, solicitacao.mensagem]
+            `INSERT INTO contrato
+             (codigo_pais, codigo_baba, data_inicio, data_fim, horarios_json, mensagem)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+                solicitacao.codigo_pais, solicitacao.codigo_baba, solicitacao.data_inicio,
+                solicitacao.data_fim, solicitacao.horarios_json, solicitacao.mensagem
+            ]
         );
-        for (const horario of horarios) {
-            await executar(
-                'INSERT INTO contrato_horario (contrato_id, dia_semana, hora_inicio, hora_fim) VALUES (?, ?, ?, ?)',
-                [resultado.lastID, horario.dia_semana, horario.hora_inicio, horario.hora_fim]
-            );
-        }
         await executar('DELETE FROM solicitacao_contrato WHERE solicitacao_id = ?', [solicitacaoId]);
         return resultado.lastID;
     }),

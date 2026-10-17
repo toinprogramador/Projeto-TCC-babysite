@@ -34,7 +34,7 @@
           <span class="avatar coral" id="babysitterProfileAvatar">BA</span>
           <div>
             <h3 id="babysitterProfileHeading">Babá</h3>
-            <p class="muted">Apresentação, experiência e tarifa ainda não informadas.</p>
+            <p class="muted" id="babysitterProfileSummary">Localização e tarifa ainda não informadas.</p>
             <h4>Disponibilidade habitual</h4>
             <div id="babysitterAvailability"><p class="muted">Carregando disponibilidade...</p></div>
           </div>
@@ -61,6 +61,7 @@
         <div class="panel-heading"><div><p class="eyebrow">SOLICITAÇÃO</p><h3>Propor contratação</h3></div></div>
         <form id="contractRequestForm" class="profile-form">
           <label>Data de início<input name="data_inicio" type="date" required></label>
+          <label>Data de fim<input name="data_fim" type="date" required></label>
           <fieldset class="wide schedule-fields"><legend>Dias e horários de trabalho</legend><div id="contractScheduleFields"></div></fieldset>
           <label class="wide">Mensagem (opcional)<textarea name="mensagem" rows="3" maxlength="500"></textarea></label>
           <div class="profile-actions wide"><button class="primary-button" type="submit">Enviar solicitação</button><button class="secondary-button" type="button" data-close-request>Cancelar</button></div>

@@ -3,8 +3,14 @@ const { promisify } = require('util');
 const Cadastro = require('../models/Cadastro');
 const Usuario = require('../models/Usuario');
 const Sessoes = require('../middleware/Sessoes');
+const disponibilidadeValida = require('../utils/Disponibilidade');
 
 const derivarSenha = promisify(scrypt);
+const estadosBrasileiros = new Set([
+    'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS',
+    'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC',
+    'SP', 'SE', 'TO', 'ESTADO_1', 'ESTADO_2', 'ESTADO_3', 'ESTADO_4', 'ESTADO_5'
+]);
 
 function normalizarTexto(valor) {
     return typeof valor === 'string' ? valor.trim() : '';
@@ -19,6 +25,20 @@ const cadastroController = {
         const telefone = normalizarTexto(dados.telefone);
         const senha = typeof dados.senha === 'string' ? dados.senha : '';
         const tipoUsuario = dados.tipo_usuario;
+        const disponibilidade = dados.disponibilidade;
+        const tarifaHora = dados.tarifa_hora;
+        const estado = normalizarTexto(dados.estado).toUpperCase();
+        const municipio = normalizarTexto(dados.municipio);
+
+        if (tipoUsuario === 'baba' && !disponibilidadeValida(disponibilidade)) {
+            return res.status(400).json({ erro: 'Informe pelo menos um dia habitual com horários válidos.' });
+        }
+        if (tipoUsuario === 'baba' && (
+            typeof tarifaHora !== 'number' || !Number.isFinite(tarifaHora) || tarifaHora <= 0 || tarifaHora > 100000
+            || !estadosBrasileiros.has(estado) || !municipio || municipio.length > 100
+        )) {
+            return res.status(400).json({ erro: 'Confira o endereço e a tarifa por hora informados.' });
+        }
 
         if (!['pais', 'baba'].includes(tipoUsuario)
             || !nome || nome.length > 100
@@ -38,7 +58,11 @@ const cadastroController = {
                 cpf,
                 email,
                 telefone,
-                senhaHash: `${sal}:${hash}`
+                senhaHash: `${sal}:${hash}`,
+                disponibilidade: tipoUsuario === 'baba' ? disponibilidade : [],
+                tarifa_hora: tipoUsuario === 'baba' ? tarifaHora : null,
+                estado: tipoUsuario === 'baba' ? estado : null,
+                municipio: tipoUsuario === 'baba' ? municipio : null
             });
 
             const usuario = await new Promise((resolve, reject) => {

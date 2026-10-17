@@ -28,12 +28,20 @@ CREATE TABLE IF NOT EXISTS baba (
     usuario_codigo CHAR(12) NOT NULL,
     status_cadastro VARCHAR(20) DEFAULT 'Ativa',
     foto TEXT,
+    tarifa_hora REAL,
+    estado CHAR(2),
+    municipio VARCHAR(100),
     FOREIGN KEY (usuario_codigo) REFERENCES usuario (usuario_codigo)
 );
 
 CREATE TABLE IF NOT EXISTS credencial (
     usuario_codigo CHAR(12) PRIMARY KEY,
     senha_hash TEXT NOT NULL,
+    FOREIGN KEY (usuario_codigo) REFERENCES usuario (usuario_codigo)
+);
+
+CREATE TABLE IF NOT EXISTS administrador (
+    usuario_codigo CHAR(12) PRIMARY KEY,
     FOREIGN KEY (usuario_codigo) REFERENCES usuario (usuario_codigo)
 );
 
@@ -78,19 +86,12 @@ CREATE TABLE IF NOT EXISTS solicitacao_contrato (
     codigo_pais CHAR(12) NOT NULL,
     codigo_baba CHAR(12) NOT NULL,
     data_inicio DATE NOT NULL,
+    data_fim DATE NOT NULL,
+    horarios_json TEXT NOT NULL DEFAULT '[]',
     mensagem TEXT,
     criada_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (codigo_pais) REFERENCES pais (codigo_pais) ON DELETE CASCADE,
     FOREIGN KEY (codigo_baba) REFERENCES baba (codigo_baba) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS solicitacao_contrato_horario (
-    solicitacao_id INTEGER NOT NULL,
-    dia_semana VARCHAR(10) NOT NULL,
-    hora_inicio CHAR(5) NOT NULL,
-    hora_fim CHAR(5) NOT NULL,
-    PRIMARY KEY (solicitacao_id, dia_semana),
-    FOREIGN KEY (solicitacao_id) REFERENCES solicitacao_contrato (solicitacao_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS contrato (
@@ -98,6 +99,8 @@ CREATE TABLE IF NOT EXISTS contrato (
     codigo_pais CHAR(12) NOT NULL,
     codigo_baba CHAR(12) NOT NULL,
     data_inicio DATE NOT NULL,
+    data_fim DATE NOT NULL,
+    horarios_json TEXT NOT NULL DEFAULT '[]',
     mensagem TEXT,
     status VARCHAR(20) NOT NULL DEFAULT 'Ativo',
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -105,13 +108,18 @@ CREATE TABLE IF NOT EXISTS contrato (
     FOREIGN KEY (codigo_baba) REFERENCES baba (codigo_baba) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS contrato_horario (
-    contrato_id INTEGER NOT NULL,
-    dia_semana VARCHAR(10) NOT NULL,
-    hora_inicio CHAR(5) NOT NULL,
-    hora_fim CHAR(5) NOT NULL,
-    PRIMARY KEY (contrato_id, dia_semana),
-    FOREIGN KEY (contrato_id) REFERENCES contrato (contrato_id) ON DELETE CASCADE
+CREATE TABLE IF NOT EXISTS avaliacao_contrato (
+    avaliacao_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    contrato_id INTEGER NOT NULL UNIQUE,
+    codigo_pais CHAR(12) NOT NULL,
+    codigo_baba CHAR(12) NOT NULL,
+    nota INTEGER NOT NULL CHECK (nota BETWEEN 1 AND 5),
+    comentario TEXT,
+    motivos_json TEXT NOT NULL DEFAULT '[]',
+    criada_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (contrato_id) REFERENCES contrato (contrato_id) ON DELETE CASCADE,
+    FOREIGN KEY (codigo_pais) REFERENCES pais (codigo_pais) ON DELETE CASCADE,
+    FOREIGN KEY (codigo_baba) REFERENCES baba (codigo_baba) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS conversa (

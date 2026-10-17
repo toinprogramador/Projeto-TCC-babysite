@@ -5,5 +5,5 @@ document.getElementById('criminalRecordForm').addEventListener('submit', (event)
   if (file && file.type !== 'application/pdf') { document.getElementById('recordError').textContent = 'Envie sua certidão no formato PDF.'; return; }
   account.antecedentes_criminais = file ? file.name : 'não enviado';
   localStorage.setItem('babysite_baba', JSON.stringify(account));
-  window.location.href = '../perfil/perfil.html';
+  window.location.href = '../endereco/endereco.html';
 });

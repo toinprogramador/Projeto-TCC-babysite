@@ -78,8 +78,8 @@
           </article>
           <article class="dark-metric">
             <span>Tarifa atual</span>
-            <strong>--</strong>
-            <small>Tarifa não cadastrada</small>
+            <strong id="currentRate">--</strong>
+            <small id="currentRateStatus">Tarifa não cadastrada</small>
           </article>
         </div>
 
@@ -133,10 +133,25 @@
         <section class="panel profile-editor">
           <form class="profile-form full" id="profileEditForm">
             <label>Nome completo <input id="profileName" type="text" value="" readonly></label>
-            <label>Disponibilidade <input type="text" placeholder="Não cadastrada" disabled></label>
-            <label class="wide">Especialidades <textarea rows="3" placeholder="Não cadastradas" disabled></textarea></label>
-            <label class="wide">Descrição de atendimento <textarea rows="5" placeholder="Não cadastrada" disabled></textarea></label>
-            <button class="primary-button" type="submit" disabled>Salvar perfil</button>
+            <label>Tarifa por hora <input id="profileRateInput" type="number" min="1" max="100000" step="0.01" placeholder="Ex.: 45,00"></label>
+            <label>Estado
+              <select id="profileStateInput">
+                <option value="">Selecione o estado</option>
+                <option value="AC">Acre</option><option value="AL">Alagoas</option><option value="AP">Amapá</option>
+                <option value="AM">Amazonas</option><option value="BA">Bahia</option><option value="CE">Ceará</option>
+                <option value="DF">Distrito Federal</option><option value="ES">Espírito Santo</option><option value="GO">Goiás</option>
+                <option value="MA">Maranhão</option><option value="MT">Mato Grosso</option><option value="MS">Mato Grosso do Sul</option>
+                <option value="MG">Minas Gerais</option><option value="PA">Pará</option><option value="PB">Paraíba</option>
+                <option value="PR">Paraná</option><option value="PE">Pernambuco</option><option value="PI">Piauí</option>
+                <option value="RJ">Rio de Janeiro</option><option value="RN">Rio Grande do Norte</option><option value="RS">Rio Grande do Sul</option>
+                <option value="RO">Rondônia</option><option value="RR">Roraima</option><option value="SC">Santa Catarina</option>
+                <option value="SP">São Paulo</option><option value="SE">Sergipe</option><option value="TO">Tocantins</option>
+                <option value="ESTADO_1">estado_1</option><option value="ESTADO_2">estado_2</option><option value="ESTADO_3">estado_3</option>
+                <option value="ESTADO_4">estado_4</option><option value="ESTADO_5">estado_5</option>
+              </select>
+            </label>
+            <label>Município <input id="profileCityInput" type="text" maxlength="100" placeholder="Ex.: São Paulo"></label>
+            <button class="primary-button" type="submit">Salvar perfil</button>
           </form>
         </section>
       </section>
@@ -188,7 +203,7 @@
           <div>
             <p class="eyebrow">CONTRATOS</p>
             <h2>Contratos aceitos</h2>
-            <p class="muted">Consulte os dias, horários e datas de início das contratações confirmadas.</p>
+            <p class="muted">Consulte os contratos e finalize o serviço quando o trabalho estiver concluído.</p>
           </div>
         </div>
         <div id="contractList" class="appointment-list"><p class="muted">Nenhum contrato registrado.</p></div>
@@ -213,9 +228,6 @@
                 <strong id="chatName">Nenhuma conversa selecionada</strong>
                 <small class="chat-status">Selecione uma conversa</small>
               </span>
-              <div class="chat-actions">
-                <button class="button-secondary" data-toast="Agenda enviada.">Sugerir horário</button>
-              </div>
             </div>
             <div class="messages large-messages"><p class="muted">Selecione uma conversa para ver as mensagens.</p></div>
             <form class="message-form" id="messageForm">

@@ -1,4 +1,5 @@
 const db = require('../database/connection');
+const gerarCodigoUsuario = require('../utils/CodigoUsuario');
 
 const Usuario = {
     // Buscar todos os usuários
@@ -22,7 +23,8 @@ const Usuario = {
                          INNER JOIN credencial AS c ON c.usuario_codigo = u.usuario_codigo
                          LEFT JOIN pais AS p ON p.usuario_codigo = u.usuario_codigo
                          LEFT JOIN baba AS b ON b.usuario_codigo = u.usuario_codigo
-                         WHERE lower(u.email_1) = lower(?)`;
+                         LEFT JOIN administrador AS a ON a.usuario_codigo = u.usuario_codigo
+                         WHERE lower(u.email_1) = lower(?) AND a.usuario_codigo IS NULL`;
             db.get(sql, [email], callback);
         },
 
@@ -40,10 +42,13 @@ const Usuario = {
 
     // Criar novo usuário
     criar: (dados, callback) => {
-        const { usuario_codigo, cpf, email_1, email_2, telefone, nome } = dados;
+        const usuario_codigo = gerarCodigoUsuario();
+        const { cpf, email_1, email_2, telefone, nome } = dados;
         const sql = `INSERT INTO usuario (usuario_codigo, cpf, email_1, email_2, telefone, nome) 
                      VALUES (?, ?, ?, ?, ?, ?)`;
-        db.run(sql, [usuario_codigo, cpf, email_1, email_2, telefone, nome], callback);
+        db.run(sql, [usuario_codigo, cpf, email_1, email_2, telefone, nome], (erro) => {
+            callback(erro, usuario_codigo);
+        });
     }
 };
 

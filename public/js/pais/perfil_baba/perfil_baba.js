@@ -1,6 +1,6 @@
 const weekdays = [
   ['segunda', 'Segunda-feira'], ['terca', 'Terça-feira'], ['quarta', 'Quarta-feira'],
-  ['quinta', 'Quinta-feira'], ['sexta', 'Sexta-feira'], ['sabado', 'Sábado'], ['domingo', 'Domingo']
+  ['quinta', 'Quinta-feira'], ['sexta', 'Sexta-feira'], ['sabado', 'Sábado']
 ];
 
 let selectedBabysitter = null;
@@ -72,10 +72,16 @@ async function loadBabysitter() {
   document.getElementById('babysitterProfileHeading').textContent = perfil.nome;
   document.getElementById('babysitterProfileStatus').textContent = 'Perfil ativo';
   document.getElementById('babysitterProfileAvatar').textContent = perfil.nome.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase();
+  const detalhes = [
+    [perfil.municipio, perfil.estado].filter(Boolean).join(' · '),
+    perfil.tarifa_hora == null ? '' : `R$ ${Number(perfil.tarifa_hora).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} por hora`
+  ].filter(Boolean);
+  document.getElementById('babysitterProfileSummary').textContent =
+    detalhes.length ? detalhes.join(' · ') : 'Localização e tarifa ainda não informadas.';
 
   const target = document.getElementById('babysitterAvailability');
   target.innerHTML = disponibilidade.length
-    ? disponibilidade.map((item) => `<div class="appointment"><strong>${escapeHTML(item.dia_semana)}</strong><span>${escapeHTML(item.hora_inicio)}–${escapeHTML(item.hora_fim)}</span></div>`).join('')
+    ? disponibilidade.map((item) => `<div class="appointment"><strong>${escapeHTML(weekdays.find(([day]) => day === item.dia_semana)?.[1] || item.dia_semana)}</strong><span>${escapeHTML(item.hora_inicio)}–${escapeHTML(item.hora_fim)}</span></div>`).join('')
     : '<p class="muted">A babá ainda não cadastrou disponibilidade habitual.</p>';
 }
 
@@ -152,6 +158,7 @@ function bindActions() {
         body: JSON.stringify({
           codigo_baba: selectedBabysitter.codigo_baba,
           data_inicio: formData.get('data_inicio'),
+          data_fim: formData.get('data_fim'),
           horarios,
           mensagem: formData.get('mensagem')
         })
@@ -169,6 +176,12 @@ function bindActions() {
 document.addEventListener('DOMContentLoaded', async () => {
   renderContractScheduleFields();
   document.querySelectorAll('input[type="date"]').forEach((field) => { field.min = isoDateToday(); });
+  const contractStartDate = document.querySelector('#contractRequestForm [name="data_inicio"]');
+  const contractEndDate = document.querySelector('#contractRequestForm [name="data_fim"]');
+  contractStartDate.addEventListener('change', () => {
+    contractEndDate.min = contractStartDate.value || isoDateToday();
+    if (contractEndDate.value && contractEndDate.value < contractEndDate.min) contractEndDate.value = '';
+  });
   bindActions();
 
   const token = localStorage.getItem('babysite_token');

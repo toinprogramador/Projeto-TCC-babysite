@@ -45,9 +45,18 @@
       <div class="section-heading" id="directory"><div><p class="eyebrow">ENCONTRE COM CALMA</p><h2>Profissionais perto de você</h2></div><span class="result-count" id="resultCount">0 perfis disponíveis</span></div>
       <div class="filter-bar">
         <label class="search-field"><span>&#9906;</span><input id="searchInput" type="search" placeholder="Nome da profissional" oninput="applyFilters()"></label>
-        <label><span>Localização</span><select id="ufFilter" disabled><option value="">Localização não cadastrada</option></select></label>
-        <label><span>Tipo de cuidado</span><select id="careFilter" disabled><option value="">Especialidade não cadastrada</option></select></label>
-        <label><span>Até por hora</span><select id="priceFilter" disabled><option value="">Tarifa não cadastrada</option></select></label>
+        <label><span>Estado</span><select id="ufFilter" onchange="updateCityOptions(); applyFilters()"><option value="">Todos os estados</option></select></label>
+        <label><span>Município</span><select id="cityFilter" onchange="applyFilters()" disabled><option value="">Todos os municípios</option></select></label>
+        <label><span>Tarifa por hora</span><input id="priceFilter" type="number" min="1" step="0.01" placeholder="Valor máximo (R$)" oninput="applyFilters()"></label>
+        <fieldset class="availability-filter">
+          <legend>Disponibilidade · escolha um ou mais dias</legend>
+          <label><input type="checkbox" name="availabilityFilter" value="segunda" onchange="applyFilters()"> Segunda-feira</label>
+          <label><input type="checkbox" name="availabilityFilter" value="terca" onchange="applyFilters()"> Terça-feira</label>
+          <label><input type="checkbox" name="availabilityFilter" value="quarta" onchange="applyFilters()"> Quarta-feira</label>
+          <label><input type="checkbox" name="availabilityFilter" value="quinta" onchange="applyFilters()"> Quinta-feira</label>
+          <label><input type="checkbox" name="availabilityFilter" value="sexta" onchange="applyFilters()"> Sexta-feira</label>
+          <label><input type="checkbox" name="availabilityFilter" value="sabado" onchange="applyFilters()"> Sábado</label>
+        </fieldset>
       </div>
       <div class="profile-grid" id="profileGrid"></div>
     </section>
@@ -76,6 +85,8 @@
     let authMode = 'login';
     function escapeHTML(value) { return String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]); }
     function initials(name) { return name.split(/\s+/).slice(0, 2).map((part) => part[0] || '').join('').toUpperCase(); }
+    const stateNames = { AC: 'Acre', AL: 'Alagoas', AP: 'Amapá', AM: 'Amazonas', BA: 'Bahia', CE: 'Ceará', DF: 'Distrito Federal', ES: 'Espírito Santo', GO: 'Goiás', MA: 'Maranhão', MT: 'Mato Grosso', MS: 'Mato Grosso do Sul', MG: 'Minas Gerais', PA: 'Pará', PB: 'Paraíba', PR: 'Paraná', PE: 'Pernambuco', PI: 'Piauí', RJ: 'Rio de Janeiro', RN: 'Rio Grande do Norte', RS: 'Rio Grande do Sul', RO: 'Rondônia', RR: 'Roraima', SC: 'Santa Catarina', SP: 'São Paulo', SE: 'Sergipe', TO: 'Tocantins', ESTADO_1: 'estado_1', ESTADO_2: 'estado_2', ESTADO_3: 'estado_3', ESTADO_4: 'estado_4', ESTADO_5: 'estado_5' };
+    const dayNames = { segunda: 'Segunda-feira', terca: 'Terça-feira', quarta: 'Quarta-feira', quinta: 'Quinta-feira', sexta: 'Sexta-feira', sabado: 'Sábado' };
     function renderProfiles(list = babysitters) {
       const grid = document.getElementById('profileGrid');
       document.getElementById('resultCount').textContent = `${list.length} perfil${list.length === 1 ? '' : 'is'} disponível${list.length === 1 ? '' : 'is'}`;
@@ -83,11 +94,56 @@
       document.getElementById('trustSitterCount').textContent = babysitters.length;
       document.getElementById('heroSitterOne').textContent = list[0] ? initials(list[0].nome) : '--';
       document.getElementById('heroSitterTwo').textContent = list[1] ? initials(list[1].nome) : '--';
-      grid.innerHTML = list.length ? list.map((person, index) => `<article class="profile-card" data-profile-name="${escapeHTML(person.nome)}"><div class="profile-cover ${profileColors[index % profileColors.length]}"><span class="profile-initials">${escapeHTML(initials(person.nome))}</span><span class="verified">&#10003; ${escapeHTML(person.status_cadastro)}</span></div><div class="profile-content"><div class="profile-title"><div><h3>${escapeHTML(person.nome)}</h3><p>Localização não informada</p></div><span class="profile-rate">Não informado</span></div><p class="profile-experience">Experiência não informada</p><div class="profile-tags"><span>Perfil profissional</span><span>Disponibilidade não informada</span></div><button class="profile-cta">Ver perfil <span>&#8594;</span></button></div></article>`).join('') : '<div class="empty-state">Nenhuma profissional encontrada.</div>';
+      grid.innerHTML = list.length ? list.map((person, index) => {
+        const location = [person.municipio, person.estado].filter(Boolean).join(' · ') || 'Localização não informada';
+        const rate = Number.isFinite(Number(person.tarifa_hora)) && person.tarifa_hora !== null
+          ? `R$ ${Number(person.tarifa_hora).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<small>/hora</small>`
+          : 'Tarifa não informada';
+        const days = (person.disponibilidade || []).map((item) => dayNames[item.dia_semana]).filter(Boolean);
+        const availability = days.length ? days.join(' · ') : 'Disponibilidade não informada';
+        return `<article class="profile-card" data-profile-name="${escapeHTML(person.nome)}"><div class="profile-cover ${profileColors[index % profileColors.length]}"><span class="profile-initials">${escapeHTML(initials(person.nome))}</span><span class="verified">&#10003; ${escapeHTML(person.status_cadastro)}</span></div><div class="profile-content"><div class="profile-title"><div><h3>${escapeHTML(person.nome)}</h3><p>${escapeHTML(location)}</p></div><span class="profile-rate">${rate}</span></div><div class="profile-tags"><span>Perfil profissional</span><span>${escapeHTML(availability)}</span></div><button class="profile-cta">Ver perfil <span>&#8594;</span></button></div></article>`;
+      }).join('') : '<div class="empty-state">Nenhuma profissional encontrada.</div>';
       grid.querySelectorAll('[data-profile-name]').forEach((card) => card.addEventListener('click', () => openProfile(card.dataset.profileName)));
     }
-    function applyFilters() { const query = document.getElementById('searchInput').value.toLowerCase(); renderProfiles(babysitters.filter((person) => !query || person.nome.toLowerCase().includes(query))); }
-    async function loadBabysitters() { const grid = document.getElementById('profileGrid'); try { const response = await fetch('/api/babas'); if (!response.ok) throw new Error('Não foi possível carregar os perfis.'); babysitters = await response.json(); renderProfiles(); } catch (error) { grid.innerHTML = '<div class="empty-state">Não foi possível carregar os perfis agora.</div>'; document.getElementById('resultCount').textContent = 'Perfis indisponíveis'; } }
+    function updateCityOptions() {
+      const state = document.getElementById('ufFilter').value;
+      const citySelect = document.getElementById('cityFilter');
+      const previousCity = citySelect.value;
+      const fictionalCities = ['municipio_1', 'municipio_2', 'municipio_3', 'municipio_4', 'municipio_5'];
+      const cities = [...new Set([
+        ...fictionalCities,
+        ...babysitters.filter((person) => !state || person.estado === state).map((person) => person.municipio).filter(Boolean)
+      ])].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+      citySelect.innerHTML = '<option value="">Todos os municípios</option>' + cities.map((city) => `<option value="${escapeHTML(city)}">${escapeHTML(city)}</option>`).join('');
+      citySelect.disabled = false;
+      if (cities.includes(previousCity)) citySelect.value = previousCity;
+    }
+    function populateLocationFilters() {
+      const stateSelect = document.getElementById('ufFilter');
+      const fictionalStates = ['ESTADO_1', 'ESTADO_2', 'ESTADO_3', 'ESTADO_4', 'ESTADO_5'];
+      const states = [...new Set([...fictionalStates, ...babysitters.map((person) => person.estado).filter(Boolean)])].sort();
+      stateSelect.innerHTML = '<option value="">Todos os estados</option>' + states.map((state) => `<option value="${escapeHTML(state)}">${escapeHTML(stateNames[state] ? `${stateNames[state]} (${state})` : state)}</option>`).join('');
+      updateCityOptions();
+    }
+    function applyFilters() {
+      const query = document.getElementById('searchInput').value.trim().toLocaleLowerCase('pt-BR');
+      const state = document.getElementById('ufFilter').value;
+      const city = document.getElementById('cityFilter').value;
+      const maxRateValue = document.getElementById('priceFilter').value;
+      const maxRate = maxRateValue === '' ? null : Number(maxRateValue);
+      const selectedDays = [...document.querySelectorAll('[name="availabilityFilter"]:checked')].map((field) => field.value);
+      renderProfiles(babysitters.filter((person) => {
+        const searchMatch = !query || person.nome.toLocaleLowerCase('pt-BR').includes(query);
+        const stateMatch = !state || person.estado === state;
+        const cityMatch = !city || person.municipio === city;
+        const rate = Number(person.tarifa_hora);
+        const rateMatch = maxRate === null || (Number.isFinite(rate) && person.tarifa_hora !== null && rate <= maxRate);
+        const personDays = new Set((person.disponibilidade || []).map((item) => item.dia_semana));
+        const availabilityMatch = selectedDays.every((day) => personDays.has(day));
+        return searchMatch && stateMatch && cityMatch && rateMatch && availabilityMatch;
+      }));
+    }
+    async function loadBabysitters() { const grid = document.getElementById('profileGrid'); try { const response = await fetch('/api/babas'); if (!response.ok) throw new Error('Não foi possível carregar os perfis.'); babysitters = await response.json(); populateLocationFilters(); applyFilters(); } catch (error) { grid.innerHTML = '<div class="empty-state">Não foi possível carregar os perfis agora.</div>'; document.getElementById('resultCount').textContent = 'Perfis indisponíveis'; } }
     function showView(view) { document.querySelectorAll('.view').forEach((item) => item.classList.remove('active-view')); document.getElementById(`view-${view}`).classList.add('active-view'); document.querySelectorAll('.nav-link').forEach((item) => item.classList.toggle('active', item.dataset.view === view)); currentRole = view; window.scrollTo({ top: 0, behavior: 'smooth' }); }
     function openProfile(name) { if (currentRole === 'guest') { openAuth('login'); return; } if (currentRole === 'parent') { showView('parent'); selectConversation(name, document.querySelector('.conversation')); } else { showToast(`Perfil de ${name} aberto para visualização.`); } }
     function openAuth(mode) { setAuthMode(mode); openModal('authModal'); }

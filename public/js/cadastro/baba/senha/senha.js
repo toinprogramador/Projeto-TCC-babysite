@@ -14,7 +14,12 @@ form.addEventListener('submit', async (event) => {
     const response = await fetch('/api/cadastros', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...account, tipo_usuario: 'baba', senha: password })
+      body: JSON.stringify({
+        ...account,
+        tipo_usuario: 'baba',
+        disponibilidade: account.disponibilidade,
+        senha: password
+      })
     });
     const result = await response.json();
     if (!response.ok) throw new Error(result.erro || 'Não foi possível concluir o cadastro.');
@@ -23,7 +28,7 @@ form.addEventListener('submit', async (event) => {
     delete account.senha;
     localStorage.setItem('babysite_baba', JSON.stringify(account));
     localStorage.setItem('babysite_token', result.token);
-    window.location.href = '../../../../baba/home-baba.html';
+    window.location.href = '../../../baba/home-baba.html';
   } catch (requestError) {
     error.textContent = requestError.message || 'Não foi possível conectar ao servidor.';
     submitButton.disabled = false;
